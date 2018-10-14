@@ -1,0 +1,66 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {   "label": "catkinMake",
+            "type": "shell",
+            "command": "cd ~/catkin_ws && source devel/setup.bash && catkin_make",
+
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {   "label": "CMake_pcl",
+            "type": "shell",
+            "command": "cd ~/catkin_ws/src/ros_pcl/src/pcl_object_recognition/build && cmake ..",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {   "label": "make_localPipeLine",
+            "type": "shell",
+            "command": "cd ~/catkin_ws/src/ros_pcl/src/pcl_object_recognition/build && make localPipeline -j3",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {   "label": "make_scenen_Prepare",
+            "type": "shell",
+            "command": "cd ~/catkin_ws/src/ros_pcl/src/pcl_object_recognition/build && make scene_prepare -j3",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {   "label": "make_all",
+            "type": "shell",
+            "command": "cd ~/catkin_ws/src/ros_pcl/src/pcl_object_recognition/build && make -j3",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {   "label": "make_test",
+            "type": "shell",
+            "command": "cd ~/catkin_ws/src/ros_pcl/src/pcl_object_recognition/build && make test -j3",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {   "label": "make_model_prepare",
+            "type": "shell",
+            "command": "cd ~/catkin_ws/src/ros_pcl/src/pcl_object_recognition/build && make model_prepare -j3",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+
+
+    ]
+}

@@ -1,0 +1,26 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}",
+                "/usr/include",
+                "/usr/local/include",
+                "/root/catkin_ws/devel/include",
+                "/opt/ros/kinetic/include",
+                "/root/catkin_ws/src/perception_pcl/pcl_conversions/include",
+                "/root/catkin_ws/src/perception_pcl/pcl_ros/include",
+                "/root/catkin_ws/src/ros_pcl/include",
+                "/usr/include/openni2",
+                "/root/catkin_ws/src"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/local/bin-ccache/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64",
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+        }
+    ],
+    "version": 4
+}

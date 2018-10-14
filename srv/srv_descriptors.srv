@@ -1,0 +1,12 @@
+string keypntType
+bool getPfh
+bool getFpfh
+bool getVfh
+bool getRsd
+bool getSc3d
+bool getUsc
+bool getShot
+string dataDir
+string filename
+---
+bool success

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<launch>
+    <node name="preprocessSrvServer" pkg="ros_pcl" type="preprocessSrvServer"/>
+    <node name="detectorSrvServer" pkg="ros_pcl" type="detectorSrvServer"/>
+    <node name="descriptorSrvServer" pkg="ros_pcl" type="descriptorSrvServer"/>
+</launch>
