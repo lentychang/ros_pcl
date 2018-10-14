@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-    <node name="preprocessSrvServer" pkg="ros_pcl" type="preprocessSrvServer"/>
-    <node name="detectorSrvServer" pkg="ros_pcl" type="detectorSrvServer"/>
-    <node name="descriptorSrvServer" pkg="ros_pcl" type="descriptorSrvServer"/>
+    <node name="preprocessSrvServer" pkg="ros_pcl" type="preprocessSrvServer" output="screen"/>
+    <node name="detectorSrvServer" pkg="ros_pcl" type="detectorSrvServer" output="screen"/>
+    <node name="descriptorSrvServer" pkg="ros_pcl" type="descriptorSrvServer" output="screen"/>
 </launch>
