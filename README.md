@@ -1,9 +1,13 @@
-# ToDo
-check Liscene from PCL
-
-# Intor to this package
+# Intro to this package
 A package wrapping some PCL function into ROS service
 Parameter is so far fixed, untuned.
+
+## Status
+Only the code in include folder is usable.
+
+
+## ToDo
+check Liscene from PCL
 
 ## ROS service server
 - preprocess
