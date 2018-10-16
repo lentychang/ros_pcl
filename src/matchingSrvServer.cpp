@@ -104,7 +104,7 @@ void matching_descriptor(std::string& dataDir, std::string& modelName, std::stri
 		int neighborCount = matching.nearestKSearch(sceneDescriptor->at(i), 1, neighbors, squaredDistances);
 		// ...and add a new correspondence if the distance is less than a threshold
 		// (SHOT distances are between 0 and 1, other descriptors use different metrics).
-		if (neighborCount == 1 && squaredDistances[0] < 0.25f) {
+		if (neighborCount == 1 && squaredDistances[0] < 1.0f) {
 			pcl::Correspondence correspondence(neighbors[0], static_cast<int>(i), squaredDistances[0]);
 			model_scene_corrs->push_back(correspondence);
 		}
@@ -317,7 +317,7 @@ void matching_histogram(std::string& dataDir, std::string& modelName, std::strin
 		int neighborCount = matching.nearestKSearch(sceneDescriptor->at(i), 1, neighbors, squaredDistances);
 		// ...and add a new correspondence if the distance is less than a threshold
 		// (SHOT distances are between 0 and 1, other descriptors use different metrics).
-		if (neighborCount == 1 && squaredDistances[0] < 0.25f) {
+		if (neighborCount == 1 && squaredDistances[0] < 1.0f) {
 			pcl::Correspondence correspondence(neighbors[0], static_cast<int>(i), squaredDistances[0]);
 			model_scene_corrs->push_back(correspondence);
 		}
