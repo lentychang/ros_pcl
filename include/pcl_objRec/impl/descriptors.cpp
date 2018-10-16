@@ -35,6 +35,7 @@ void Descriptors<TPntType,TPntNType>::setFilename(std::string& filename, std::st
 // PFH
 template<typename TPntType, typename TPntNType> 
 void Descriptors<TPntType,TPntNType>::getPfh(const pcl::PointCloud<pcl::PFHSignature125>::Ptr& pfhDescriptor) {
+		__timeStart();
 		descriptorName = rawName + sourceName + "_pfh" + subName ;
 		pcl::PFHEstimation<TPntType, pcl::Normal, pcl::PFHSignature125> pfh;
 
@@ -47,6 +48,7 @@ void Descriptors<TPntType,TPntNType>::getPfh(const pcl::PointCloud<pcl::PFHSigna
 		pfh.setRadiusSearch(0.04);
 		pfh.compute(*pfhDescriptor);
 		pcl::io::savePCDFileASCII(descriptorName, *pfhDescriptor);
+		__printDuration("Descriptor PFH");
 }
 
 // FPFH
@@ -74,6 +76,7 @@ void Descriptors<TPntType,TPntNType>::getFpfh(const pcl::PointCloud<pcl::FPFHSig
 
 template<typename TPntType, typename TPntNType> 
 void Descriptors<TPntType,TPntNType>::getVfh(const pcl::PointCloud<pcl::VFHSignature308>::Ptr& vfhDescriptor) {
+	__timeStart();
 	pcl::OURCVFHEstimation<TPntType, pcl::Normal, pcl::VFHSignature308> vfh;
 	vfh.setSearchSurface(__inputPoints);
 	vfh.setInputNormals(__inputNormals);
@@ -88,10 +91,12 @@ void Descriptors<TPntType,TPntNType>::getVfh(const pcl::PointCloud<pcl::VFHSigna
 	vfh.compute(*vfhDescriptor);
 	descriptorName = rawName + sourceName + "_vfh" + subName;
 	pcl::io::savePCDFileASCII(descriptorName, *vfhDescriptor);
+	__printDuration("Descriptor VFH");
 }
 
 template<typename TPntType, typename TPntNType> 
 void Descriptors<TPntType,TPntNType>::getCvfh(const pcl::PointCloud<pcl::VFHSignature308>::Ptr& cvfhDescriptor) {
+	__timeStart();
 	pcl::OURCVFHEstimation<TPntType, pcl::Normal, pcl::VFHSignature308> cvfh;
 	cvfh.setSearchSurface(__inputPoints);
 	cvfh.setInputNormals(__inputNormals);
@@ -106,12 +111,13 @@ void Descriptors<TPntType,TPntNType>::getCvfh(const pcl::PointCloud<pcl::VFHSign
 	cvfh.compute(*cvfhDescriptor);
 	descriptorName = rawName + sourceName + "_cvfh" + subName;
 	pcl::io::savePCDFileASCII(descriptorName, *cvfhDescriptor);
+	__printDuration("Descriptor CVFH");
 }
 
 template<typename TPntType, typename TPntNType> 
 void Descriptors<TPntType,TPntNType>::getOurcvfh(const pcl::PointCloud<pcl::VFHSignature308>::Ptr& ourcvfhDescriptor) {
     // OUR-CVFH estimation object.
-
+	__timeStart();
 	pcl::OURCVFHEstimation<TPntType, pcl::Normal, pcl::VFHSignature308> ourcvfh;
 	ourcvfh.setSearchSurface(__inputPoints);
 	ourcvfh.setInputCloud(__keyPoints);
@@ -128,11 +134,13 @@ void Descriptors<TPntType,TPntNType>::getOurcvfh(const pcl::PointCloud<pcl::VFHS
 	// Another possibility would be "savePCDFileBinary()".
 	descriptorName = rawName + sourceName + "_ourcvfh" + subName;
     pcl::io::savePCDFileASCII(descriptorName, *ourcvfhDescriptor);
+	__printDuration("Descriptor OUR-CVFH");
 }
 
 // RSD estimation object - A large descriptor!!
 template<typename TPntType, typename TPntNType> 
 void Descriptors<TPntType,TPntNType>::getRsd(const pcl::PointCloud<pcl::PrincipalRadiiRSD>::Ptr& rsdDescriptor) {
+	__timeStart();
 	pcl::RSDEstimation<TPntType, pcl::Normal, pcl::PrincipalRadiiRSD> rsd;
 	rsd.setSearchSurface(__inputPoints);
 	rsd.setInputCloud(__keyPoints);
@@ -149,10 +157,12 @@ void Descriptors<TPntType,TPntNType>::getRsd(const pcl::PointCloud<pcl::Principa
 
 	descriptorName = rawName + sourceName + "_rsd" + subName;
 	pcl::io::savePCDFileASCII(descriptorName, *rsdDescriptor);
+	__printDuration("Descriptor RSD");
 }
 
 template<typename TPntType, typename TPntNType> 
 void Descriptors<TPntType,TPntNType>::getSc3d(const pcl::PointCloud<pcl::ShapeContext1980>::Ptr& sc3dDescriptor){
+	__timeStart();
 	pcl::ShapeContext3DEstimation<TPntType, pcl::Normal, pcl::ShapeContext1980> sc3d;
 	sc3d.setSearchSurface(__inputPoints);
 	sc3d.setInputCloud(__keyPoints);
@@ -170,10 +180,12 @@ void Descriptors<TPntType,TPntNType>::getSc3d(const pcl::PointCloud<pcl::ShapeCo
 	sc3d.compute(*sc3dDescriptor);
 	descriptorName = rawName + sourceName + "_sc3d" + subName;
 	pcl::io::savePCDFileASCII(descriptorName, *sc3dDescriptor);
+	__printDuration("Descriptor SC3D");
 }
 // USC estimation object.
 template<typename TPntType, typename TPntNType> 
 void Descriptors<TPntType,TPntNType>::getUsc(const pcl::PointCloud<pcl::UniqueShapeContext1960>::Ptr& uscDescriptor){
+	__timeStart();
 	pcl::UniqueShapeContext<TPntType, pcl::UniqueShapeContext1960, pcl::ReferenceFrame> usc;
 	usc.setSearchSurface(__inputPoints);
 	usc.setInputCloud(__keyPoints);
@@ -190,6 +202,7 @@ void Descriptors<TPntType,TPntNType>::getUsc(const pcl::PointCloud<pcl::UniqueSh
 	usc.compute(*uscDescriptor);
 	descriptorName = rawName + sourceName + "_usc" + subName;
 	pcl::io::savePCDFileASCII(descriptorName, *uscDescriptor);
+	__printDuration("Descriptor USC");
 }
 
 template<typename TPntType, typename TPntNType> 
@@ -210,7 +223,7 @@ void Descriptors<TPntType,TPntNType>::getShot(const pcl::PointCloud<pcl::SHOT352
 
 	descriptorName = rawName + sourceName + "_shot" + subName;
 	pcl::io::savePCDFileASCII(descriptorName, *shotDescriptor);
-	__printDuration("Descriptor Shot");
+	__printDuration("Descriptor SHOT");
 }
 
 template<typename TPntType, typename TPntNType> 
@@ -235,7 +248,7 @@ Descriptors<TPntType,TPntNType>::getColorShot(const pcl::PointCloud<pcl::SHOT134
 
 	descriptorName = rawName + sourceName + "_shot" + subName;
 	pcl::io::savePCDFileASCII(descriptorName, *shotDescriptor);
-	__printDuration("Descriptor Shot");
+	__printDuration("Descriptor ColorSHOT");
 
 }
 
@@ -263,5 +276,5 @@ void Descriptors<TPntType,TPntNType>::__timeStart(){__start = std::clock();}
 template<typename TPntType, typename TPntNType> 
 void Descriptors<TPntType,TPntNType>::__printDuration(const char str[]){
     __duration = ( std::clock() - __start ) / (double) CLOCKS_PER_SEC;
-    cout << "Time for " << str << ": " << __duration <<'\n';
+    cout << "[INFO] Time for " << str << ": " << __duration <<'\n';
   }
