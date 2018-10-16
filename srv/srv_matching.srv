@@ -1,0 +1,6 @@
+string dataDir
+string modelName
+string detector
+string descriptor
+---
+bool success
