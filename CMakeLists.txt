@@ -65,6 +65,7 @@ add_service_files(
   srv_preprocess.srv
   srv_detectors.srv
   srv_descriptors.srv
+  srv_matching.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -170,6 +171,9 @@ target_link_libraries(detectorSrvServer ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 add_executable(descriptorSrvServer src/descriptorsSrvServer.cpp include/pcl_objRec/impl/utils.cpp
                                                            include/pcl_objRec/impl/descriptors.cpp)
 target_link_libraries(descriptorSrvServer ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(matchingSrvServer src/matchingSrvServer.cpp)
+target_link_libraries(matchingSrvServer ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
