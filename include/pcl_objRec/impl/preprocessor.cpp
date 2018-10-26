@@ -225,22 +225,20 @@ void Preprocessor<TPntType,TPntNType>::doRansacPlane(float distThres) {
 
 
 template<typename TPntType,typename TPntNType>
-void Preprocessor<TPntType,TPntNType>::doNormalEstimation(const char searchNeighborMethod[], float para, const char searchMethod[]) {
+void Preprocessor<TPntType,TPntNType>::doNormalEstimation(bool useRadiusSearch, double searchParam, bool useOctreeSearch) {
 	__timeStart();
     __cloudNormals->clear();
     __pointNormals->clear();
     __normalEstimation.setInputCloud(__cloudPoints);
-    if (strcmp(searchNeighborMethod, "radius")==0 || strcmp(searchNeighborMethod,"Radius")==0) {
-        cout << searchNeighborMethod << endl;
-        cout << "use Radius search" << endl;
-        __normalEstimation.setRadiusSearch(para);}
+    if (useRadiusSearch) {
+        cout << "[Normal estimation] uses Radius search, radius: " << searchParam << endl;
+        __normalEstimation.setRadiusSearch(searchParam);}
     else {
-      cout << searchNeighborMethod << endl;
-      cout << "use Ksearch" << endl;
-      __normalEstimation.setKSearch(int(para));}
+      cout << "[Normal estimation] uses Ksearch, K: " << (int)searchParam << endl;
+      __normalEstimation.setKSearch(int(searchParam));}
 
     //if (strcmp(searchMethod,"flannkdtree")== 0) {__normalEstimation.setSearchMethod(__flannkdtree);}
-    if (strcmp(searchMethod,"octree")== 0) {__normalEstimation.setSearchMethod(__octree);}
+    if (useOctreeSearch) {__normalEstimation.setSearchMethod(__octree);}
     else {__normalEstimation.setSearchMethod(__kdtree);}
 
 	__normalEstimation.compute(*__cloudNormals);

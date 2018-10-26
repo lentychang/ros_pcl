@@ -34,7 +34,7 @@ void Descriptors<TPntType,TPntNType>::setFilename(std::string& filename, std::st
 
 // PFH
 template<typename TPntType, typename TPntNType> 
-void Descriptors<TPntType,TPntNType>::getPfh(const pcl::PointCloud<pcl::PFHSignature125>::Ptr& pfhDescriptor) {
+void Descriptors<TPntType,TPntNType>::getPfh(const pcl::PointCloud<pcl::PFHSignature125>::Ptr& pfhDescriptor, bool useRadiusSearch, double searchParam) {
 		__timeStart();
 		descriptorName = rawName + sourceName + "_pfh" + subName ;
 		pcl::PFHEstimation<TPntType, pcl::Normal, pcl::PFHSignature125> pfh;
@@ -45,7 +45,12 @@ void Descriptors<TPntType,TPntNType>::getPfh(const pcl::PointCloud<pcl::PFHSigna
 		pfh.setSearchMethod(__kdtree);
 		// Search radius, to look for neighbors. Note: the value given here has to be
 		// larger than the radius used to estimate the normals.
-		pfh.setRadiusSearch(0.04);
+		if (useRadiusSearch){
+			pfh.setRadiusSearch(searchParam);
+		}
+		else {
+			pfh.setKSearch((int)searchParam);
+		}
 		pfh.compute(*pfhDescriptor);
 		pcl::io::savePCDFileASCII(descriptorName, *pfhDescriptor);
 		__printDuration("Descriptor PFH");
@@ -53,7 +58,7 @@ void Descriptors<TPntType,TPntNType>::getPfh(const pcl::PointCloud<pcl::PFHSigna
 
 // FPFH
 template<typename TPntType, typename TPntNType> 
-void Descriptors<TPntType,TPntNType>::getFpfh(const pcl::PointCloud<pcl::FPFHSignature33>::Ptr& fpfhDescriptor) {
+void Descriptors<TPntType,TPntNType>::getFpfh(const pcl::PointCloud<pcl::FPFHSignature33>::Ptr& fpfhDescriptor, bool useRadiusSearch, double searchParam) {
 	__timeStart();
 	descriptorName = rawName + sourceName + "_fpfh" + subName;
 	pcl::FPFHEstimation<TPntType, pcl::Normal, pcl::FPFHSignature33> fpfh;
@@ -68,7 +73,12 @@ void Descriptors<TPntType,TPntNType>::getFpfh(const pcl::PointCloud<pcl::FPFHSig
 	fpfh.setSearchMethod(__kdtree);
 	// Search radius, to look for neighbors. Note: the value given here has to be
 	// larger than the radius used to estimate the normals.
-	fpfh.setRadiusSearch(0.02);
+	if (useRadiusSearch){
+		fpfh.setRadiusSearch(searchParam);
+	}
+	else {
+		fpfh.setKSearch((int)searchParam);
+	}
 	fpfh.compute(*fpfhDescriptor);
 	pcl::io::savePCDFileASCII(descriptorName, *fpfhDescriptor);
 	__printDuration("FPFH Descriptor");
@@ -206,7 +216,7 @@ void Descriptors<TPntType,TPntNType>::getUsc(const pcl::PointCloud<pcl::UniqueSh
 }
 
 template<typename TPntType, typename TPntNType> 
-void Descriptors<TPntType,TPntNType>::getShot(const pcl::PointCloud<pcl::SHOT352>::Ptr& shotDescriptor){
+void Descriptors<TPntType,TPntNType>::getShot(const pcl::PointCloud<pcl::SHOT352>::Ptr& shotDescriptor, bool useRadiusSearch, double searchParam){
 	__timeStart();
 	// SHOT estimation object.
 	pcl::SHOTEstimationOMP<TPntType, pcl::Normal, pcl::SHOT352> shot;
@@ -216,7 +226,12 @@ void Descriptors<TPntType,TPntNType>::getShot(const pcl::PointCloud<pcl::SHOT352
 	shot.setInputNormals(__inputNormals);
 	// The radius that defines which of the keypoint's neighbors are described.
 	// If too large, there may be clutter, and if too small, not enough points may be found.
-	shot.setRadiusSearch(0.02);
+	if (useRadiusSearch){
+		shot.setRadiusSearch(searchParam);
+	}
+	else {
+		shot.setKSearch((int)searchParam);
+	}
 	shot.compute(*shotDescriptor);
 
 	vector<int> mapping_;

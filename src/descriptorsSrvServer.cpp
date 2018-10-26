@@ -2,6 +2,7 @@
 #include <pcl_ros/io/pcd_io.h>
 #include <pcl_objRec/descriptors.h>
 #include <ros_pcl/srv_descriptors.h>
+#include <pcl_objRec/utils.h>
 #include "../config/pointType.hpp"
 
 // rosservice call /descriptorSrvServer "{keypntType: 'iss', getPfh: true, getFpfh: true, getVfh: true, getRsd: true, getSc3d: true,   getUsc: true, getShot: true, filename: 'scene', inputCloudDir: '/root/exchange/tempData/filtered', inputKeypntsDir: '/root/exchange/tempData/detector',  outputDir: '/root/exchange/tempData/descriptor'}"
@@ -44,7 +45,7 @@ bool descriptorSrvCb(ros_pcl::srv_descriptors::Request &req, ros_pcl::srv_descri
     if (pcl::io::loadPCDFile<pntType>(keyPntsFile, *keyPnts) != 0) {
         std::cout << "[Error] Loading PCD file failed" << std::endl;
     }
-
+    float resolution = computeCloudResolution(cloudPnts);
     Descriptors<pntType,pntNType> descriptor;
 
     std::string appendName = "";
@@ -60,13 +61,13 @@ bool descriptorSrvCb(ros_pcl::srv_descriptors::Request &req, ros_pcl::srv_descri
     pcl::PointCloud<pcl::UniqueShapeContext1960>::Ptr uscDescriptor(new pcl::PointCloud<pcl::UniqueShapeContext1960>());
     pcl::PointCloud<pcl::SHOT352>::Ptr shotDescriptor(new pcl::PointCloud<pcl::SHOT352>());
 
-    if (req.getPfh==true) descriptor.getPfh(pfhDescriptor);
-    if (req.getFpfh==true) descriptor.getFpfh(fpfhDescriptor);
+    if (req.getPfh==true) descriptor.getPfh(pfhDescriptor,true, 3*resolution);
+    if (req.getFpfh==true) descriptor.getFpfh(fpfhDescriptor, true, 3*resolution);
     if (req.getVfh==true) descriptor.getVfh(vfhDescriptor);
     if (req.getRsd==true) descriptor.getRsd(rsdDescriptor);
     if (req.getSc3d==true) descriptor.getSc3d(sc3dDescriptor);
     if (req.getUsc==true) descriptor.getUsc(uscDescriptor);
-    if (req.getShot==true) descriptor.getShot(shotDescriptor);
+    if (req.getShot==true) descriptor.getShot(shotDescriptor, true, 3*resolution);
 
     return true;
 }

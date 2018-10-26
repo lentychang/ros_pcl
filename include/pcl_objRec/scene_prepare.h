@@ -29,7 +29,7 @@
 #include <cstdio>
 #include <ctime>
 #include <boost/thread/thread.hpp>
-#include "utils.h"
+#include <pcl_objRec/utils.h>
 
 using namespace std;
 

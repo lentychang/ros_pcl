@@ -9,7 +9,7 @@
 #include <pcl/filters/uniform_sampling.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/io.h>
-#include "utils.h"
+#include <pcl_objRec/utils.h>
 #include "../config/pointType.hpp"
 
 #include <boost/thread/thread.hpp>
@@ -25,6 +25,6 @@ void getSiftKeypoints(const pcl::PointCloud<pcl::PointNormal>::ConstPtr& inputPo
 
 void getUniformsamplekeypoints(	const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& inputPoints,
                       			const pcl::PointCloud<pcl::PointXYZ>::Ptr& uniKeypoints,
-								float radiusSearchR);
+								double searchRadius);
 
 #endif

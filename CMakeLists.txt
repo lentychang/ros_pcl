@@ -15,6 +15,11 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   message_generation
+  visualization_msgs
+  tf2_ros
+  tf2_msgs
+  tf2_sensor_msgs
+  geometry_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -80,6 +85,7 @@ generate_messages(
   DEPENDENCIES
   std_msgs
   sensor_msgs
+  visualization_msgs
 )
 
 ################################################
@@ -114,7 +120,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ros_pcl
-  CATKIN_DEPENDS pcl_conversions pcl_ros roscpp sensor_msgs std_msgs
+  CATKIN_DEPENDS pcl_conversions pcl_ros roscpp sensor_msgs std_msgs visualization_msgs
 #  DEPENDS system_lib
 )
 
@@ -129,7 +135,8 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
 )
-
+find_package(Eigen3 REQUIRED)
+include_directories(EIGEN3_INCLUDE_DIR)
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/ros_pcl.cpp
@@ -172,8 +179,19 @@ add_executable(descriptorSrvServer src/descriptorsSrvServer.cpp include/pcl_objR
                                                            include/pcl_objRec/impl/descriptors.cpp)
 target_link_libraries(descriptorSrvServer ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
-add_executable(matchingSrvServer src/matchingSrvServer.cpp)
+add_executable(matchingSrvServer src/matchingSrvServer.cpp include/pcl_objRec/impl/utils.cpp
+                                                           include/pcl_objRec/impl/preprocessor.cpp)
 target_link_libraries(matchingSrvServer ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+
+add_executable(static_tf2_broadcaster src/static_broadcaster.cpp)
+target_link_libraries(static_tf2_broadcaster  ${catkin_LIBRARIES} )
+
+add_executable(transformListener src/transformListener.cpp)
+target_link_libraries(transformListener  ${catkin_LIBRARIES} )
+
+add_executable(pcd_merge src/pcd_merge.cpp)
+target_link_libraries(pcd_merge ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

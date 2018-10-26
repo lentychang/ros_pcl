@@ -22,13 +22,14 @@ void modelPreprocess(const std::string& dataDir ,const std::string& modelName)
 	string appendName;
 
 	//-------- PCD Preprocessing --------//
-	double cloudRes = computeCloudResolution(cloudPoints);
-
 	Preprocessor<pntType, pntNType> preprocess;
 	preprocess.addPoints(cloudPoints);
 	preprocess.doRmNaNPoints();
-	preprocess.doVoxelFilter(0.002);
-	preprocess.doNormalEstimation("radius", 0.005, "flannkdtree");
+	preprocess.doVoxelFilter(0.001);
+	preprocess.getPoints(cloudPoints);
+	double resolution = computeCloudResolution(cloudPoints);
+	
+	preprocess.doNormalEstimation(true, 2.0*resolution, false);
 	preprocess.getData(cloudPoints, cloudNormals, cloudAll);
 	appendName = "";
 	preprocess.setFileName(rawname,appendName);

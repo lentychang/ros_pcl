@@ -40,7 +40,8 @@ void scenenPreprocess(const std::string& dataDir)
 	cout << "cloud resolution:" << computeCloudResolution(scenePoints) << endl;
 
     //preprocess.doVoxelFilter(0.01);
-    preprocess.doNormalEstimation("radius", 0.005, "flannkdtree");
+	double resolution = computeCloudResolution(scenePoints);
+    preprocess.doNormalEstimation(true,2.0*resolution,false);
     preprocess.getData(scenePoints, sceneNormals, scenePointNormals);
     preprocess.saveData();
 

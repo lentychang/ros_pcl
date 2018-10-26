@@ -56,15 +56,15 @@ public:
 				    const typename pcl::PointCloud<TPntType>::ConstPtr& keyPoints,
 				    const typename pcl::PointCloud<TPntNType>::ConstPtr& inputPointNormals );
     void setFilename(std::string& filename, std::string& source);
-    void getPfh(const pcl::PointCloud<pcl::PFHSignature125>::Ptr& pfhDescriptor);
-    void getFpfh(const pcl::PointCloud<pcl::FPFHSignature33>::Ptr& fpfhDescriptor);
+    void getPfh(const pcl::PointCloud<pcl::PFHSignature125>::Ptr& pfhDescriptor, bool useRadiusSearch, double searchParam);
+    void getFpfh(const pcl::PointCloud<pcl::FPFHSignature33>::Ptr& fpfhDescriptor, bool useRadiusSearch, double searchParam);
     void getVfh(const pcl::PointCloud<pcl::VFHSignature308>::Ptr& vfhDescriptor);
     void getCvfh(const pcl::PointCloud<pcl::VFHSignature308>::Ptr& cvfhDescriptor);
     void getOurcvfh(const pcl::PointCloud<pcl::VFHSignature308>::Ptr& ourcvfhDescriptor);
     void getRsd(const pcl::PointCloud<pcl::PrincipalRadiiRSD>::Ptr& rsdDescriptor);
     void getSc3d(const pcl::PointCloud<pcl::ShapeContext1980>::Ptr& sc3dDescriptor);
     void getUsc(const pcl::PointCloud<pcl::UniqueShapeContext1960>::Ptr& uscDescriptor);
-    void getShot(const pcl::PointCloud<pcl::SHOT352>::Ptr& shotDescriptor);
+    void getShot(const pcl::PointCloud<pcl::SHOT352>::Ptr& shotDescriptor, bool useRadiusSearch, double searchParam);
 
     template<typename U = TPntType>
     typename std::enable_if

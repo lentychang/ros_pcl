@@ -70,12 +70,10 @@ void getSiftKeypoints(const pcl::PointCloud<pcl::PointNormal>::ConstPtr& inputPo
 
 void getUniformsamplekeypoints(	const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& inputPoints,
                       			const pcl::PointCloud<pcl::PointXYZ>::Ptr& uniKeypoints,
-								float radiusSearchR){
-	double resolution = computeCloudResolution(inputPoints);
-	
+								double searchRadius){
 	pcl::UniformSampling<pcl::PointXYZ> uniform_sampling;
 	uniform_sampling.setInputCloud (inputPoints);
-	uniform_sampling.setRadiusSearch (radiusSearchR* resolution);
+	uniform_sampling.setRadiusSearch (searchRadius);
 	uniform_sampling.filter (*uniKeypoints);
 	cout << "Number of non NaNpoints:" << inputPoints->size() << endl;
 	cout << "Number of uniformSampling keypoints:" << uniKeypoints->size() << endl;

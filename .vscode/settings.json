@@ -51,6 +51,7 @@
         "utility": "cpp",
         "valarray": "cpp",
         "string": "cpp",
-        "*.h++": "cpp"
+        "*.h++": "cpp",
+        "*.ipp": "cpp"
     }
 }

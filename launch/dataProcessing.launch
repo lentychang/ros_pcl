@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="pubTopic" default="/tf2_kinect2_world" />
+    <arg name="sourceFrame" default="kinect2_depth_optical_frame"/>
+    <arg name="targetFrame" default="world"/>
+
+    <node name="tf2_kinect2world" pkg="ros_pcl" type="transformListener" args="$(arg pubTopic) $(arg targetFrame) $(arg sourceFrame)" output="screen"/>
+
+</launch>

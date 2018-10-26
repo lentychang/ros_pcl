@@ -76,11 +76,11 @@ public:
     void doRmNaNPoints();
     void doZFilter(float min=0.5, float max=2.0);
     void doStatisticFilter(int meanK=20, float sigma=1.0);
-    void doVoxelFilter(float voxelSize=0.01);
+    void doVoxelFilter(float voxelSize=0.001);
     void segRansacPlane(float nonPlnPntsRatio=0.2, float distThre=0.001);
     void rmRansacPlane(float distThres=0.001);
     void doRansacPlane(float distThres = 0.01);
-    void doNormalEstimation(const char searchNeighborMethod[], float para, const char searchMethod[]);
+    void doNormalEstimation(bool useRadiusSearch=true, double searchParam=0.002, bool useOctreeSearch=false);
     void doMlsSmoothing(const bool computeNormals=false, int polynomialOrder=3);
     void getData(   const typename pcl::PointCloud<TPntType>::Ptr& cloudPnts,
                     const pcl::PointCloud<pcl::Normal>::Ptr& cloudNormals,

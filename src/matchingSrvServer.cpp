@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/common/transforms.h>
+#include <pcl/point_cloud.h>
 #include <pcl/features/board.h>
 #include <pcl/correspondence.h>
 #include <pcl/kdtree/kdtree_flann.h>
@@ -9,6 +10,8 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include "../config/pointType.hpp"
 #include <ros_pcl/srv_matching.h>
+#include <pcl_objRec/utils.h>
+#include <pcl_objRec/preprocessor.h>
 
 template<typename TpntType, typename TpntNType, typename TdescriptorType>
 void matching_descriptor(std::string& dataDir, std::string& modelName, std::string& detector, std::string& descriptor) {
@@ -48,7 +51,8 @@ void matching_descriptor(std::string& dataDir, std::string& modelName, std::stri
     if (pcl::io::loadPCDFile<pcl::Normal>(modelCloudPath, *modelNs) != 0) {
         std::cout << "[Error] Loading PCD file failed" << std::endl;
     }
-
+	double resolution = computeCloudResolution(modelPnts);
+	Preprocessor<TpntType, TpntNType> preprocess;
     // assign path to read keypoints and descriptor
     typename pcl::PointCloud<TpntType>::Ptr sceneKeypnts(new  pcl::PointCloud<TpntType>);
     typename pcl::PointCloud<TpntType>::Ptr modelKeypnts(new  pcl::PointCloud<TpntType>);
@@ -122,7 +126,7 @@ void matching_descriptor(std::string& dataDir, std::string& modelName, std::stri
 
 	pcl::BOARDLocalReferenceFrameEstimation<pcl::PointXYZ, pcl::Normal, pcl::ReferenceFrame> rf_est;
 	rf_est.setFindHoles(true);
-	rf_est.setRadiusSearch(0.015f);
+	rf_est.setRadiusSearch(3.0*resolution);
 
 	rf_est.setInputCloud(modelKeypnts);
 	rf_est.setInputNormals(modelNs);

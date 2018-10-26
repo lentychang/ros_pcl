@@ -15,7 +15,7 @@
 #include "detectors.h"
 #include "descriptors.h"
 #include "preprocessor.h"
-#include "utils.h"
+#include <pcl_objRec/utils.h>
 //#include <pcl/visualization/pcl_visualizer.h>
 
 using namespace std;

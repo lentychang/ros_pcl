@@ -3,6 +3,7 @@
 #include <ros_pcl/srv_detectors.h>
 #include <pcl_objRec/detectors.h>
 #include <pcl/io/pcd_io.h>
+#include <pcl_objRec/utils.h>
 #include "../config/pointType.hpp"
 
 //rosservice call /getDetectors "filename:'lf064-05' pntInputPath:'/root/exchange/tempData/filtered/lf064-05_model_points_.pcd' pntNormalInputPath:'/root/exchange/tempData/filtered/lf064-05_model_pointNormals_.pcd' outputFolderPath:'/root/exchange/tempData/detector'" 
@@ -32,7 +33,8 @@ bool detectorSrvCb(ros_pcl::srv_detectors::Request &req, ros_pcl::srv_detectors:
     update_detector_fileName(filePath, "");
     getIssKeypoints(cloud_pnts, issKeypointclouds);
     getSiftKeypoints(cloudpntNormals, siftKeypointclouds);
-    getUniformsamplekeypoints(cloud_pnts,uniKeypointclouds, 3.0);
+    float resolution = computeCloudResolution(cloud_pnts);
+    getUniformsamplekeypoints(cloud_pnts,uniKeypointclouds, 3.0*resolution);
 
     return true;
 
