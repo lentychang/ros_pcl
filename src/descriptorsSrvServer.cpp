@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <pcl_ros/io/pcd_io.h>
 #include <pcl_objRec/descriptors.h>
-#include <ros_pcl/srv_descriptors.h>
+#include <ros_pcl_msgs/srv_descriptors.h>
 #include <pcl_objRec/utils.h>
 #include "../config/pointType.hpp"
 

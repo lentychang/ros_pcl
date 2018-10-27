@@ -13,7 +13,7 @@
 #include <boost/bind/bind.hpp>
 #include <iostream>
 #include "std_msgs/String.h"
-#include <ros_pcl/srv_getScenePcd.h>
+#include <ros_pcl_msgs/srv_getScenePcd.h>
 #include <tf2/transform_datatypes.h>
 #include "../config/pointType.hpp"
 #include <tf2_ros/transform_listener.h>

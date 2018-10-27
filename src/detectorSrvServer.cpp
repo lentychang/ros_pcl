@@ -1,6 +1,6 @@
 
 #include <ros/ros.h>
-#include <ros_pcl/srv_detectors.h>
+#include <ros_pcl_msgs/srv_detectors.h>
 #include <pcl_objRec/detectors.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl_objRec/utils.h>

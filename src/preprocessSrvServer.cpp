@@ -2,7 +2,7 @@
 #include <pcl_objRec/preprocessor.h>
 #include <pcl_objRec/scene_prepare.h>
 #include <pcl_objRec/model_prepare.h>
-#include <ros_pcl/srv_preprocess.h>
+#include <ros_pcl_msgs/srv_preprocess.h>
 
 bool preprocessSrvCb(ros_pcl::srv_preprocess::Request &req, ros_pcl::srv_preprocess::Response &res) {
     res.success=true;

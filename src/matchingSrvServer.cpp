@@ -9,7 +9,7 @@
 #include <pcl/recognition/cg/hough_3d.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include "../config/pointType.hpp"
-#include <ros_pcl/srv_matching.h>
+#include <ros_pcl_msgs/srv_matching.h>
 #include <pcl_objRec/utils.h>
 #include <pcl_objRec/preprocessor.h>
 
