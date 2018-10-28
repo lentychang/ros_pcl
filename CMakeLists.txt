@@ -64,14 +64,14 @@ find_package(PCL 1.8 REQUIRED COMPONENTS common io search features keypoints kdt
 # )
 
 ## Generate services in the 'srv' folder
-add_service_files(
-  FILES
-  srv_getScenePcd.srv
-  srv_preprocess.srv
-  srv_detectors.srv
-  srv_descriptors.srv
-  srv_matching.srv
-)
+# add_service_files(
+#   FILES
+#   srv_getScenePcd.srv
+#   srv_preprocess.srv
+#   srv_detectors.srv
+#   srv_descriptors.srv
+#   srv_matching.srv
+# )
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -81,12 +81,12 @@ add_service_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-  sensor_msgs
-  visualization_msgs
-)
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs
+#   sensor_msgs
+#   visualization_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##

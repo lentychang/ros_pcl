@@ -1,4 +1,0 @@
-string dataDir
-string filename
----
-bool success
