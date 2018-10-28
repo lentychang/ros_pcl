@@ -4,7 +4,7 @@
 #include <pcl_objRec/model_prepare.h>
 #include <ros_pcl_msgs/srv_preprocess.h>
 
-bool preprocessSrvCb(ros_pcl::srv_preprocess::Request &req, ros_pcl::srv_preprocess::Response &res) {
+bool preprocessSrvCb(ros_pcl_msgs::srv_preprocess::Request &req, ros_pcl_msgs::srv_preprocess::Response &res) {
     res.success=true;
     if (req.filename == "scene") {
         scenenPreprocess(req.dataDir);

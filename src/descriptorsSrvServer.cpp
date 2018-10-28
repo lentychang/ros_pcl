@@ -6,7 +6,7 @@
 #include "../config/pointType.hpp"
 
 // rosservice call /descriptorSrvServer "{keypntType: 'iss', getPfh: true, getFpfh: true, getVfh: true, getRsd: true, getSc3d: true,   getUsc: true, getShot: true, filename: 'scene', inputCloudDir: '/root/exchange/tempData/filtered', inputKeypntsDir: '/root/exchange/tempData/detector',  outputDir: '/root/exchange/tempData/descriptor'}"
-bool descriptorSrvCb(ros_pcl::srv_descriptors::Request &req, ros_pcl::srv_descriptors::Response &res) {
+bool descriptorSrvCb(ros_pcl_msgs::srv_descriptors::Request &req, ros_pcl_msgs::srv_descriptors::Response &res) {
     ROS_INFO("Service descriptor is called!");
     res.success=true;
 

@@ -10,7 +10,7 @@
 
 
 //rosservice call /getDetectors "filename: 'scene'pntInputPath: '/root/exchange/tempData/filtered/scene_points_.pcd' pntNormalInputPath: '/root/exchange/tempData/filtered/scene_pointNormals_.pcd' outputFolderPath: '/root/exchange/tempData/detector'" 
-bool detectorSrvCb(ros_pcl::srv_detectors::Request &req, ros_pcl::srv_detectors::Response &res) {
+bool detectorSrvCb(ros_pcl_msgs::srv_detectors::Request &req, ros_pcl_msgs::srv_detectors::Response &res) {
     res.success=true;
 	pcl::PointCloud<pntType>::Ptr cloud_pnts(new pcl::PointCloud<pntType>());
 	pcl::PointCloud<pntNType>::Ptr cloudpntNormals(new pcl::PointCloud<pntNType>);

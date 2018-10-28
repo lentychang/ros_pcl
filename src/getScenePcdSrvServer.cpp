@@ -48,12 +48,12 @@ public:
     PcdGrabber();
     PointCloud::Ptr cloudPoints;
     void callback(const sensor_msgs::PointCloud2::ConstPtr& msg);
-    void catchCallbackPcdOnce(ros_pcl::srv_getScenePcd::Request &req);
+    void catchCallbackPcdOnce(ros_pcl_msgs::srv_getScenePcd::Request &req);
     void appendNewPointCloud();
     void savePCD(const char fileName[]);
     void sub();
-    bool subPCDStart(ros_pcl::srv_getScenePcd::Request &req, ros_pcl::srv_getScenePcd::Response &res);
-    void getTf2(ros_pcl::srv_getScenePcd::Request &req);
+    bool subPCDStart(ros_pcl_msgs::srv_getScenePcd::Request &req, ros_pcl_msgs::srv_getScenePcd::Response &res);
+    void getTf2(ros_pcl_msgs::srv_getScenePcd::Request &req);
     void tf2callback(const geometry_msgs::TransformStamped &msg);
 };
 
@@ -101,7 +101,7 @@ void PcdGrabber::sub() {
     spinner.spin();
 }
 
-bool PcdGrabber::subPCDStart(ros_pcl::srv_getScenePcd::Request &req, ros_pcl::srv_getScenePcd::Response &res) {
+bool PcdGrabber::subPCDStart(ros_pcl_msgs::srv_getScenePcd::Request &req, ros_pcl_msgs::srv_getScenePcd::Response &res) {
     std::cout << "SrvCalled" << std::endl;
     subscriber = nh_sub.subscribe<sensor_msgs::PointCloud2>("/kinect2/sd/points", 1, &PcdGrabber::callback, this);
     subscriber2 = nh_tf2Sub.subscribe("/tf2_kinect2_world", 1, &PcdGrabber::tf2callback, this);
@@ -148,7 +148,7 @@ void PcdGrabber::tf2callback(const geometry_msgs::TransformStamped &msg) {
 
 
 
-void PcdGrabber::catchCallbackPcdOnce(ros_pcl::srv_getScenePcd::Request &req) {
+void PcdGrabber::catchCallbackPcdOnce(ros_pcl_msgs::srv_getScenePcd::Request &req) {
     printf("catchCallbackPcdOnce called !!");
     pcl::copyPointCloud(*__cloudPoints, *cloudPoints);
     //getTf2(req);
@@ -170,7 +170,7 @@ void PcdGrabber::savePCD(const char fileName[]){
 }
 
 
-void PcdGrabber::getTf2(ros_pcl::srv_getScenePcd::Request &req){
+void PcdGrabber::getTf2(ros_pcl_msgs::srv_getScenePcd::Request &req){
    
         std::cout << "In getTf2" << std::endl;
         while (nh_sub.ok()) {

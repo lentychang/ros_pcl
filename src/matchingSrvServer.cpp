@@ -442,7 +442,7 @@ void matching_histogram(std::string& dataDir, std::string& modelName, std::strin
 }
 
 
-bool matchingSrvCb(ros_pcl::srv_matching::Request &req, ros_pcl::srv_matching::Response &res) {
+bool matchingSrvCb(ros_pcl_msgs::srv_matching::Request &req, ros_pcl_msgs::srv_matching::Response &res) {
     // initialize
 	pcl::PointCloud<pcl::PFHSignature125>::Ptr scenePfhDescriptor(new pcl::PointCloud<pcl::PFHSignature125>());
     pcl::PointCloud<pcl::FPFHSignature33>::Ptr sceneFpfhDescriptor(new pcl::PointCloud<pcl::FPFHSignature33>());
