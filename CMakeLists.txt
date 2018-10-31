@@ -193,6 +193,9 @@ target_link_libraries(transformListener  ${catkin_LIBRARIES} )
 add_executable(pcd_merge src/pcd_merge.cpp)
 target_link_libraries(pcd_merge ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
+add_executable(matchingLocalPipeline src/matchingLocalPipeline.cpp)
+target_link_libraries(matchingLocalPipeline ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
