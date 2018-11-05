@@ -2,6 +2,9 @@
 #define UTILS_H
 #include <pcl/io/io.h>
 #include <iostream>
+#include <unistd.h>
+#include <stdio.h>
+#include <limits.h>
 #include <pcl/search/kdtree.h>
 #include <pcl/surface/mls.h>
 

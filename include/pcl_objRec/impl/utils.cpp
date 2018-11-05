@@ -1,5 +1,6 @@
 #include <pcl_objRec/utils.h>
 
+typedef pcl::PointXYZ PointType;
 
 double
 computeCloudResolution(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& cloud)
@@ -166,8 +167,74 @@ void __test_cropPcd(int argc, char *argv[]){
 	}
 }
 
+
+
+
+void __tool_computeResolution() {
+	char cwd[PATH_MAX];
+   	if (getcwd(cwd, sizeof(cwd)) != NULL) {
+       printf("Current working dir: %s\n", cwd);
+   	} else {
+       perror("getcwd() error");
+   	}
+	
+	std::string filepath;
+	pcl::PointCloud<PointType>::Ptr pnts (new pcl::PointCloud<PointType> ());
+	while (true){
+		printf("Current working dir: %s\n", cwd);
+		std::cout << "Please enter filepath, or 'exit', 'q, 'quit' to exit" << std::endl;
+		std::cin >> filepath;
+		if (filepath == "exit" || filepath == "quit" || filepath == "q") {
+			break;
+		}
+		
+		if (pcl::io::loadPCDFile<PointType> (filepath, *pnts) < 0) {
+			ROS_FATAL("Error loading model cloud.");
+		}
+		//remove NaN
+		std::vector<int> indices_src;
+		pcl::removeNaNFromPointCloud(*pnts, *pnts, indices_src);
+		computeCloudResolution(pnts);
+	}
+}
+
+void __tools() {
+	int i = 1;
+	while (i !=9){
+		std::cout << "Please enter function number you want to use:" << std::endl;
+		std::cout << "[1] compute cloud resolution (default)" << std::endl;
+		std::cout << "[9] Exit" << std::endl;
+		int i = 1;
+		std::cin >> i;
+		
+		if (i == 1){
+			__tool_computeResolution();
+		}
+	}
+}
+
+void __test_computeResolution(int argc, char* argv[]) {
+	std::cout << "Usage: command [filename contains path]" << std::endl;
+	std::string filename = "/root/exchange/tempData/filtered/scene2_points_.pcd";
+    if (argc>=2) {
+		filename = argv[1];
+	}
+    pcl::PointCloud<PointType>::Ptr pnts (new pcl::PointCloud<PointType> ());
+
+    if (pcl::io::loadPCDFile<PointType> (filename, *pnts) < 0) {
+        ROS_FATAL("Error loading model cloud.");
+    }
+      
+    //remove NaN
+	std::vector<int> indices_src;
+	pcl::removeNaNFromPointCloud(*pnts, *pnts, indices_src);
+	computeCloudResolution(pnts);
+}
+
 int main(int argc, char *argv[]){
 	// __test_euclideanSeg(argc, argv);
-	__test_cropPcd(argc, argv);
+	// __test_cropPcd(argc, argv);
+	// __test_computeResolution(argc, argv);
+	__tools();
 
 }
