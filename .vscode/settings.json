@@ -52,6 +52,9 @@
         "valarray": "cpp",
         "string": "cpp",
         "*.h++": "cpp",
-        "*.ipp": "cpp"
-    }
+        "*.ipp": "cpp",
+        "core": "cpp",
+        "numericaldiff": "cpp"
+    },
+    "terminal.integrated.fontFamily": "monospace"
 }
