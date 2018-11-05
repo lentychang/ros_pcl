@@ -64,7 +64,26 @@ void getSiftKeypoints(const pcl::PointCloud<pcl::PointNormal>::ConstPtr& inputPo
 	pcl::io::savePCDFileASCII(keypointsName, *siftKeypoints);
 	cout << "Number of non NaNpoints:" << inputPointNormals->size() << endl;
 	cout << "Number of sift keypoints:" << siftKeypoints->size() << endl;
+}
 
+
+void getSiftKeypoints(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& inputPoints,
+                      const pcl::PointCloud<pcl::PointXYZ>::Ptr& siftKeypoints) {
+	pcl::NormalEstimation<pcl::PointXYZ, pcl::PointNormal> ne;
+	pcl::PointCloud<pcl::PointNormal>::Ptr cloudPntNormals (new pcl::PointCloud<pcl::PointNormal>);
+	pcl::search::KdTree<pcl::PointXYZ>::Ptr tree_n(new pcl::search::KdTree<pcl::PointXYZ>());
+
+	ne.setInputCloud(inputPoints);
+	ne.setSearchMethod(tree_n);
+	ne.setRadiusSearch(0.2);
+	ne.compute(*cloudPntNormals);
+	// Copy the xyz info from cloud_xyz and add it to cloudPntNormals as the xyz field in PointNormals estimation is zero
+	for(size_t i = 0; i<cloudPntNormals->points.size(); ++i) {
+		cloudPntNormals->points[i].x = inputPoints->points[i].x;
+		cloudPntNormals->points[i].y = inputPoints->points[i].y;
+		cloudPntNormals->points[i].z = inputPoints->points[i].z;
+	}
+	getSiftKeypoints(cloudPntNormals, siftKeypoints);
 }
 
 

@@ -23,6 +23,9 @@ void getIssKeypoints(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& inputCloudP
 void getSiftKeypoints(const pcl::PointCloud<pcl::PointNormal>::ConstPtr& inputPointNormals,
                       const pcl::PointCloud<pcl::PointXYZ>::Ptr& siftKeypoints);
 
+void getSiftKeypoints(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& inputPoints,
+                      const pcl::PointCloud<pcl::PointXYZ>::Ptr& siftKeypoints);
+
 void getUniformsamplekeypoints(	const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& inputPoints,
                       			const pcl::PointCloud<pcl::PointXYZ>::Ptr& uniKeypoints,
 								double searchRadius);
