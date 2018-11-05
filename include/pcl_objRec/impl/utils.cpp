@@ -64,8 +64,8 @@ mls_upsampling(pcl::PointCloud<pcl::PointXYZ>::Ptr& inCloud, pcl::PointCloud<pcl
 	filter.process(*outCloud);
 }
 
-void
-euclideanSeg (pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int minClusterSize, int maxClusterSize, float cluster_tol, bool enableViewer)
+std::vector <pcl::PointIndices>
+euclideanSeg (const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& cloud, int minClusterSize, int maxClusterSize, float cluster_tol, bool enableViewer)
 {
     // Create EuclideanClusterExtraction and set parameters
     pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
@@ -76,28 +76,21 @@ euclideanSeg (pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int minClusterSize, int
     std::vector <pcl::PointIndices> clusters;
     ec.setInputCloud (cloud);
     ec.extract (clusters);
+	int clusterSize = static_cast<int>(clusters.size());
 
-    if (static_cast<int>(clusters.size()==0)){
-        ROS_WARN("No cluster found!!");
-        saveFile_ = false;
+    if (clusterSize>0){
+        ROS_INFO("Segmentation succeed! %d clusters found !", clusterSize);
     }
-
-    pcl::ExtractIndices<pcl::PointXYZ> extract;
+	else {
+		ROS_WARN("No cluster found!!");
+		enableViewer=false;		
+	}
+    
     pcl::PointCloud<pcl::PointXYZ>::Ptr pntsInCluster (new pcl::PointCloud<pcl::PointXYZ> ());
-    pcl::PointIndices::Ptr pntIdxs (new pcl::PointIndices ());    
-    std::string filename;
-
 	pcl::visualization::PCLVisualizer viewer ("Cluster viewer");
-
     if (enableViewer){
-        for (int i=0;i<static_cast<int>(clusters.size());++i){
-
-            extract.setInputCloud (cloud);
-            *pntIdxs = clusters[i];
-            extract.setIndices(pntIdxs);
-            extract.setNegative (false);
-            extract.filter(*pntsInCluster);
-
+        for (int i=0;i<clusterSize;++i){
+			extractPCDfromCluster(clusters, i+1, cloud, pntsInCluster);
 			viewer.addPointCloud (pntsInCluster, "clusterCloud");
 			while(!viewer.wasStopped()) {
 				viewer.spinOnce ();
@@ -106,4 +99,75 @@ euclideanSeg (pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int minClusterSize, int
 			viewer.resetStoppedFlag();
         }
     }
+
+	return clusters;
+}
+
+void extractPCDfromCluster(std::vector <pcl::PointIndices>& clusters, int nth_cluster, const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& cloud, pcl::PointCloud<pcl::PointXYZ>::Ptr& outCloud) {
+	if ( nth_cluster <= static_cast<int>(clusters.size())){
+		pcl::ExtractIndices<pcl::PointXYZ> extract;
+		// pcl::PointCloud<pcl::PointXYZ>::Ptr pntsInCluster (new pcl::PointCloud<pcl::PointXYZ> ());
+		pcl::PointIndices::Ptr pntIdxs (new pcl::PointIndices ());
+		extract.setInputCloud (cloud);
+		*pntIdxs = clusters[nth_cluster-1];
+		extract.setIndices(pntIdxs);
+		extract.setNegative (false);
+		extract.filter(*outCloud);
+	}
+	else {
+		ROS_WARN("Due to no cluster found, output is directly copied from input. Please check the parameters");
+		pcl::copyPointCloud(*cloud, *outCloud);
+	}
+}
+
+
+void cropPcd(const Eigen::Vector4f& min, const Eigen::Vector4f& max, const Eigen::Vector3f &translation, const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& cloud, pcl::PointCloud<pcl::PointXYZ>::Ptr& outCloud, bool setNegative){
+	pcl::CropBox<pcl::PointXYZ> boxFilter;
+	
+	boxFilter.setMin(min);
+	boxFilter.setMax(max);
+	boxFilter.setTranslation(translation);
+	boxFilter.setInputCloud(cloud);
+	boxFilter.setNegative(setNegative);
+	boxFilter.filter(*outCloud);
+}
+
+
+void __test_euclideanSeg(int argc, char *argv[]){
+	std::string filename="/root/exchange/tempData/filtered/scene2_points_.pcd";
+	pcl::console::parse_argument(argc, argv, "--filepath", filename);
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ> ());
+	pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *cloud);
+	euclideanSeg(cloud, 40, 1500, 0.01, true);
+}
+
+void __test_cropPcd(int argc, char *argv[]){
+	std::string filename="/root/exchange/tempData/srcPCD/scene.pcd";
+	pcl::console::parse_argument(argc, argv, "--filepath", filename);
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ> ());
+	pcl::PointCloud<pcl::PointXYZ>::Ptr outCloud (new pcl::PointCloud<pcl::PointXYZ> ());
+	pcl::io::loadPCDFile<pcl::PointXYZ>(filename, *cloud);
+
+	Eigen::Vector4f min = Eigen::Vector4f(0,0,0,1);
+	Eigen::Vector4f max = Eigen::Vector4f(1,1,1,1);
+	Eigen::Vector3f translation = Eigen::Vector3f(-0.5, -0.5, 0.5);
+	cropPcd(min, max, translation, cloud, outCloud, true);
+
+	pcl::visualization::PCLVisualizer viewer ("Cluster viewer");
+	viewer.addPointCloud (cloud, "inputCloud");
+	while(!viewer.wasStopped()) {
+		viewer.spinOnce ();
+	}
+	viewer.removeAllPointClouds();
+	viewer.resetStoppedFlag();
+	viewer.addPointCloud (outCloud, "outCloud");
+	while(!viewer.wasStopped()) {
+		viewer.spinOnce ();
+	}
+}
+
+int main(int argc, char *argv[]){
+	// __test_euclideanSeg(argc, argv);
+	__test_cropPcd(argc, argv);
+
 }

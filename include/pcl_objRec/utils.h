@@ -15,6 +15,7 @@
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/filters/filter.h>
 #include <pcl/filters/extract_indices.h>
+#include <pcl/filters/crop_box.h>
 #include <pcl/console/parse.h>
 #include <pcl/segmentation/extract_clusters.h>
 
@@ -26,7 +27,9 @@ computeCloudResolution(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& cloud);
 void
 mls_upsampling(pcl::PointCloud<pcl::PointXYZ>::Ptr& inCloud, pcl::PointCloud<pcl::PointXYZ>::Ptr &outCloud, float resolution ,float stepRatio=0.5);
 
-void 
-euclideanSeg (pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int minClusterSize=30, int maxClusterSize=1500, float cluster_tol=0.01f, bool enableViewer=false);
+std::vector <pcl::PointIndices> 
+euclideanSeg (const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& cloud, int minClusterSize, int maxClusterSize, float cluster_tol, bool enableViewer);
+void extractPCDfromCluster(std::vector <pcl::PointIndices>& clusters, int nth_cluster, const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& cloud, pcl::PointCloud<pcl::PointXYZ>::Ptr& outCloud);
+void cropPcd(const Eigen::Vector4f& min, const Eigen::Vector4f& max, const Eigen::Vector3f &translation, const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& cloud, pcl::PointCloud<pcl::PointXYZ>::Ptr& outCloud, bool setNegative=false);
 
 #endif
