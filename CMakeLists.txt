@@ -3,6 +3,7 @@ project(ros_pcl)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -184,8 +185,8 @@ add_executable(matchingSrvServer src/matchingSrvServer.cpp include/pcl_objRec/im
 target_link_libraries(matchingSrvServer ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 
-add_executable(static_tf2_broadcaster src/static_broadcaster.cpp)
-target_link_libraries(static_tf2_broadcaster  ${catkin_LIBRARIES} )
+# add_executable(static_tf2_broadcaster src/static_broadcaster.cpp)
+# target_link_libraries(static_tf2_broadcaster  ${catkin_LIBRARIES} )
 
 add_executable(transformListener src/transformListener.cpp)
 target_link_libraries(transformListener  ${catkin_LIBRARIES} )
@@ -193,8 +194,14 @@ target_link_libraries(transformListener  ${catkin_LIBRARIES} )
 add_executable(pcd_merge src/pcd_merge.cpp)
 target_link_libraries(pcd_merge ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
-add_executable(matchingLocalPipeline src/matchingLocalPipeline.cpp)
+add_executable(matchingLocalPipeline src/matchingLocalPipeline.cpp include/pcl_objRec/impl/utils.cpp)
 target_link_libraries(matchingLocalPipeline ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+# add_executable(computeResolution src/computeResolution.cpp include/pcl_objRec/impl/utils.cpp)
+# target_link_libraries(computeResolution ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+add_executable(utils include/pcl_objRec/impl/utils.cpp)
+target_link_libraries(utils ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
