@@ -35,6 +35,6 @@ using namespace std;
 
 
 //g++ -g ../src/localPipeline__.cpp ../src/detectors.cpp ../src/preprocessor.cpp ../src/descriptors.cpp -o bin/localpipeline -L /usr/lib/x86_64-linux-gnu/  -I /usr/include/openni2 -lboost_system -lpcl_common -lpcl_io -lpcl_features -lpcl_search -lpcl_filters -lboost_thread -lpcl_filters -lpcl_kdtree -lpcl_octree -lflann -std=c++11
-void scenenPreprocess(const std::string& dataDir);
+void scenenPreprocess(const std::string& dataDir, const std::string& srcName, float pntLeftRatio=0.07);
 
 #endif

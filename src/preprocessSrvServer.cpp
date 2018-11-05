@@ -6,19 +6,18 @@
 
 bool preprocessSrvCb(ros_pcl_msgs::srv_preprocess::Request &req, ros_pcl_msgs::srv_preprocess::Response &res) {
     res.success=true;
-    if (req.filename == "scene") {
-        scenenPreprocess(req.dataDir);
-
-    }
-    else if (req.filename=="lf064-01" || req.filename=="lf064-02" || 
-             req.filename=="lf064-03" || req.filename=="lf064-04" || 
-             req.filename=="lf064-05" || req.filename=="lf064-06" ) {
+    if (req.filename=="lf064-01" || req.filename=="lf064-02" || 
+        req.filename=="lf064-03" || req.filename=="lf064-04" || 
+        req.filename=="lf064-05" || req.filename=="lf064-06" ) {
+        
         modelPreprocess(req.dataDir, req.filename);
-
     }
     else  {
-        ROS_ERROR("preprocess service... filename doesn't not exist");
-        res.success=false;}
+        scenenPreprocess(req.dataDir, req.filename, req.nonPlnPntRatio);
+        
+        // ROS_ERROR("preprocess service... filename doesn't not exist");
+        // res.success=false;
+    }
     
     return true;
 }

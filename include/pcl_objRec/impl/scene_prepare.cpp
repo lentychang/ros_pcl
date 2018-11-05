@@ -1,9 +1,9 @@
 #include "../scene_prepare.h"
 
 //g++ -g ../src/localPipeline__.cpp ../src/detectors.cpp ../src/preprocessor.cpp ../src/descriptors.cpp -o bin/localpipeline -L /usr/lib/x86_64-linux-gnu/  -I /usr/include/openni2 -lboost_system -lpcl_common -lpcl_io -lpcl_features -lpcl_search -lpcl_filters -lboost_thread -lpcl_filters -lpcl_kdtree -lpcl_octree -lflann -std=c++11
-void scenenPreprocess(const std::string& dataDir)
+void scenenPreprocess(const std::string& dataDir, const std::string& srcName, float pntLeftRatio)
 {
-	string inputName = dataDir + "/srcPCD/" + "scene.pcd";
+	string inputName = dataDir + "/srcPCD/" + srcName + ".pcd";
 
 	cout << "Read scene.pcd from:" << inputName << endl;
 	// Object for storing the point cloud.
@@ -19,7 +19,7 @@ void scenenPreprocess(const std::string& dataDir)
 
     Preprocessor<pntType,pntNType> preprocess;
     preprocess.addPoints(scenePoints);
-    string rawName = dataDir + "/filtered/" + "scene";
+    string rawName = dataDir + "/filtered/" + srcName;
     string appendName = "";
     preprocess.setFileName(rawName, appendName);
  
@@ -28,8 +28,8 @@ void scenenPreprocess(const std::string& dataDir)
 	// preprocess.doStatisticFilter(20, 1.0f);
 	preprocess.getPoints(scenePoints);
 	computeCloudResolution(scenePoints);
-	preprocess.doVoxelFilter(0.001);
-	preprocess.segRansacPlane(0.08,0.001);
+	// preprocess.doVoxelFilter(0.001);
+	preprocess.segRansacPlane(pntLeftRatio,0.001);
 	preprocess.getPoints(scenePoints);
 	// appendName = "_after Ransac";
 	// preprocess.setFileName(rawName, appendName);
