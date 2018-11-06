@@ -4,6 +4,7 @@ project(ros_pcl)
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
+set(CATKIN_DEVEL_PREFIX /root/catkin_ws/devel)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -21,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_msgs
   tf2_sensor_msgs
   geometry_msgs
+  ros_pcl_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -121,7 +123,7 @@ find_package(PCL 1.8 REQUIRED COMPONENTS common io search features keypoints kdt
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ros_pcl
-  CATKIN_DEPENDS pcl_conversions pcl_ros roscpp sensor_msgs std_msgs visualization_msgs
+  CATKIN_DEPENDS pcl_conversions pcl_ros roscpp sensor_msgs std_msgs visualization_msgs ros_pcl_msgs
 #  DEPENDS system_lib
 )
 
@@ -162,8 +164,6 @@ add_executable(preprocessSrvServer src/preprocessSrvServer.cpp include/pcl_objRe
                                                                include/pcl_objRec/impl/descriptors.cpp )
 target_link_libraries(preprocessSrvServer ${catkin_LIBRARIES} ${PCL_LIBRARIES})                                                               
 
-add_executable(pcdRes include/pcl_objRec/impl/pcdRes.cpp)
-target_link_libraries(pcdRes ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 #add_executable(modelRescale include/pcl_objRec/impl/modelRescale.cpp) 
 #target_link_libraries(modelRescale ${catkin_LIBRARIES} ${PCL_LIBRARIES})
@@ -194,14 +194,14 @@ target_link_libraries(transformListener  ${catkin_LIBRARIES} )
 add_executable(pcd_merge src/pcd_merge.cpp)
 target_link_libraries(pcd_merge ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
-add_executable(matchingLocalPipeline src/matchingLocalPipeline.cpp include/pcl_objRec/impl/utils.cpp)
+add_executable(matchingLocalPipeline src/matchingLocalPipeline.cpp)
 target_link_libraries(matchingLocalPipeline ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 # add_executable(computeResolution src/computeResolution.cpp include/pcl_objRec/impl/utils.cpp)
 # target_link_libraries(computeResolution ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
-add_executable(utils include/pcl_objRec/impl/utils.cpp)
-target_link_libraries(utils ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+add_executable(utils_tools include/pcl_objRec/impl/utils_tools.cpp)
+target_link_libraries(utils_tools ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
