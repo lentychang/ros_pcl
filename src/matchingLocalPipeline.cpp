@@ -125,6 +125,7 @@ bool hv_detect_clutter_ (true);
 
 
 void hypothesis_verification(const pcl::PointCloud<PointType>::Ptr& scene, std::vector<pcl::PointCloud<PointType>::ConstPtr>& registered_instances, std::vector<bool>& hypotheses_mask);
+void __test_final_tranformation(const pcl::PointCloud<PointType>::Ptr& scene, std::vector<pcl::PointCloud<PointType>::Ptr>& modelpcdList, std::vector<int>& no_model_instances,  std::vector<Eigen::Matrix<float, 4, 4> >& all_final_tfMatrixList);
 
 //  rosrun ros_pcl matchingLocalPipeline scene2 lf064-05 0.5 -c -r --algorithm Hough --normal_ss 2 --model_ss 1.2 --scene_ss 1.2 --rf_rad 3 --descr_rad 2.8 --cg_size 4  --cg_thresh 3
 void
@@ -137,12 +138,14 @@ read_pcd(const std::string &baseName, pcl::PointCloud<PointType>::Ptr& pnts)
   }
 }
 
+// after confirmation the correctness of final_tfMatrixList, registered_instances can be removed and generate it outside the function
 void matchShot(const std::string& modelName, 
            pcl::PointCloud<PointType>::Ptr& scene,
            pcl::PointCloud<NormalType>::Ptr& scene_normals,
            pcl::PointCloud<PointType>::Ptr& scene_keypoints, 
            pcl::PointCloud<DescriptorType>::Ptr& scene_descriptors,
            std::vector<pcl::PointCloud<PointType>::ConstPtr>& registered_instances,
+           std::vector<Eigen::Matrix<float, 4, 4> >& final_tfMatrixList,
            bool calculateScene=false)
 {
   pcl::PointCloud<PointType>::Ptr model (new pcl::PointCloud<PointType> ());
@@ -316,12 +319,11 @@ void matchShot(const std::string& modelName,
   /**
    * ICP
    */
-  if (true)
-  {
     cout << "--- ICP ---------" << endl;
-
     for (size_t i = 0; i < rototranslations.size (); ++i)
     {
+      Eigen::Matrix<float, 4, 4> icp_tfMatrix;
+      Eigen::Matrix<float, 4, 4> final_tfMatrix;
       pcl::IterativeClosestPoint<PointType, PointType> icp;
       icp.setMaximumIterations (icp_max_iter_);
       icp.setMaxCorrespondenceDistance (icp_corr_distance_);
@@ -333,20 +335,24 @@ void matchShot(const std::string& modelName,
       icp.setInputSource (instances[i]);
       pcl::PointCloud<PointType>::Ptr registered (new pcl::PointCloud<PointType>);
       icp.align (*registered);
+      // get transformation from initial recognition to fitting after icp.
+      icp_tfMatrix = icp.getFinalTransformation();
+
+      // [WARN] multiplication order should be checked A*B or B*A
+      final_tfMatrix = icp_tfMatrix * rototranslations[i].block<4,4>(0, 0) ;
       registered_instances.push_back (registered);
       cout << "Instance " << i << " ";
-      if (icp.hasConverged ())
-      {
+      final_tfMatrixList.push_back(final_tfMatrix);
+      if (icp.hasConverged ()) {
         cout << "Aligned!" << endl;
       }
-      else
-      {
+      else {
         cout << "Not Aligned!" << endl;
       }
     }
 
     cout << "-----------------" << endl << endl;
-  }
+
 
 
   //
@@ -874,19 +880,36 @@ main (int argc, char *argv[])
   pcl::PointCloud<DescriptorType>::Ptr scene_descriptors (new pcl::PointCloud<DescriptorType> ());
   pcl::PointCloud<FPFHDescriptor>::Ptr scene_fpfhDescriptors (new pcl::PointCloud<FPFHDescriptor> ());
 
-
   std::string filename = argv[1];
   read_pcd(filename, scene);
   setupResolution(static_cast<float>(computeCloudResolution(scene)));
+
+  // Recognition modelList
+  std::vector<std::string> modelList{"lf064-01", "lf064-02", "lf064-03", "lf064-04", "lf064-05"};
+  // vector of model pcd
+  std::vector<pcl::PointCloud<PointType>::Ptr> modelpcdList;
+
+  // Matrix Vector to store all transformation matrix after icp
+  std::vector<int>no_model_instances;
+  std::vector<Eigen::Matrix<float, 4, 4> > all_final_tfMatrixList;
+  // Vector of transformed pointclouds
   std::vector<pcl::PointCloud<PointType>::ConstPtr> all_registered_instances;
 
-  std::vector<std::string> modelList{"lf064-01", "lf064-02", "lf064-03", "lf064-04", "lf064-05"};
+  // Start recognition,icp and get transformation matrix
   for (size_t i = 0; i < modelList.size(); ++i) {
     std::vector<pcl::PointCloud<PointType>::ConstPtr> registered_instances;
+    std::vector<Eigen::Matrix<float, 4, 4> > final_tfMatrixList;
     std::string modelName = modelList[i];
-    std::cout << "Start recognize " << modelName << std::endl;
+    std::cout << "--- Start recognize " << modelName << " ----" << std::endl;
+    std::string modelfilename = "/srcPCD/" + modelList[i] + ".pcd";
+    pcl::PointCloud<PointType>::Ptr modelpcd (new pcl::PointCloud<PointType> ());
+    
+    read_pcd(modelfilename, modelpcd);
+    modelpcdList.push_back(modelpcd);
+
     if (descriptor_ == "shot") {
-      matchShot(modelName, scene, scene_normals, scene_keypoints, scene_descriptors, registered_instances, true);
+      matchShot(modelName, scene, scene_normals, scene_keypoints, scene_descriptors, registered_instances, final_tfMatrixList,true);
+      no_model_instances.push_back(static_cast<int>(registered_instances.size()));
     }
     else if (descriptor_ == "fpfh") {
       matchFpfh(modelName, scene, scene_normals, scene_keypoints, scene_fpfhDescriptors, true);
@@ -894,9 +917,11 @@ main (int argc, char *argv[])
     else {
       std::cout << "please enter shot or fpfh for descriptor" << std::endl;
     }
+    all_final_tfMatrixList.insert(all_final_tfMatrixList.end(), final_tfMatrixList.begin(), final_tfMatrixList.end());
     all_registered_instances.insert(all_registered_instances.end(), registered_instances.begin(), registered_instances.end());
   }
 
+  //__test_final_tranformation(scene, modelpcdList, no_model_instances, all_final_tfMatrixList);
 
   if (static_cast<int>( all_registered_instances.size ()) > 0) {
     std::vector<bool> hypothesesMask;
@@ -969,4 +994,46 @@ void hypothesis_verification(const pcl::PointCloud<PointType>::Ptr& scene, std::
       }
     }
     std::cout << "-------------------------------" << std::endl;
+}
+
+
+void __test_final_tranformation(const pcl::PointCloud<PointType>::Ptr& scene, std::vector<pcl::PointCloud<PointType>::Ptr>& modelpcdList, std::vector<int>& no_model_instances,  std::vector<Eigen::Matrix<float, 4, 4> >& all_final_tfMatrixList){
+  /* Show all the model pcd after transformed, comparing it with the output from viewer in main function
+   *
+   *
+  /*
+  pcl::visualization::PCLVisualizer viewer ("Hypotheses Verification");
+  viewer.addPointCloud (scene, "scene_cloud");
+
+  std::vector<pcl::PointCloud<PointType>::ConstPtr> instances;
+  int k =  0;
+  int startIdx = 0;
+  for (int j=0; j < static_cast<int>(no_model_instances.size());++j){
+    int endIdx = startIdx + static_cast<int>(no_model_instances[j]);
+    for (startIdx; k < endIdx; k++) {
+      pcl::PointCloud<PointType>::Ptr rotated_model (new pcl::PointCloud<PointType>());
+      pcl::PointCloud<PointType>::Ptr final_model (new pcl::PointCloud<PointType> ());
+      pcl::transformPointCloud (*modelpcdList[j], *rotated_model, all_final_tfMatrixList[k]);
+      instances.push_back (rotated_model);
+    }
+    startIdx = no_model_instances[j];
+  }
+
+  // visualize the testing transformed models
+  for (size_t i=0; i < instances.size(); ++i) {
+    std::stringstream ss_instance;
+    ss_instance << "test_tf_" << i;
+    CloudStyle registeredStyles = style_cyan;
+    pcl::visualization::PointCloudColorHandlerCustom<PointType> instance_color_handler (instances[i], registeredStyles.r, registeredStyles.g, registeredStyles.b);
+    viewer.addPointCloud(instances[i], instance_color_handler, ss_instance.str());
+    viewer.setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, registeredStyles.size, ss_instance.str ());
+  }
+
+  while (!viewer.wasStopped ())
+  {
+    viewer.spinOnce ();
+  }
+
+
+
 }
