@@ -123,7 +123,7 @@ find_package(PCL 1.8 REQUIRED COMPONENTS common io search features keypoints kdt
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ros_pcl
-  CATKIN_DEPENDS pcl_conversions pcl_ros roscpp sensor_msgs std_msgs visualization_msgs ros_pcl_msgs
+  CATKIN_DEPENDS pcl_conversions pcl_ros roscpp sensor_msgs std_msgs visualization_msgs ros_pcl_msgs geometry_msgs
 #  DEPENDS system_lib
 )
 
@@ -139,7 +139,7 @@ include_directories(
   ${PCL_INCLUDE_DIRS}
 )
 find_package(Eigen3 REQUIRED)
-include_directories(EIGEN3_INCLUDE_DIR)
+include_directories(${EIGEN3_INCLUDE_DIR})
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/ros_pcl.cpp
