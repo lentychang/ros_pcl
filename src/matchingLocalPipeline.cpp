@@ -872,6 +872,7 @@ main (int argc, char *argv[])
 {
   parseCommandLine (argc, argv);
   correspondence_dist = atof(argv[2]);
+  bool enableViewer = true;
 
 
   pcl::PointCloud<PointType>::Ptr scene (new pcl::PointCloud<PointType> ());
@@ -923,6 +924,11 @@ main (int argc, char *argv[])
 
   //__test_final_tranformation(scene, modelpcdList, no_model_instances, all_final_tfMatrixList);
 
+  // model trasformation matrix list
+  std::vector<Eigen::Matrix<float, 4, 4>> tfMatrix_hv_true, tfMatrix_hv_false;
+
+
+  // Start hypothesis verification
   if (static_cast<int>( all_registered_instances.size ()) > 0) {
     std::vector<bool> hypothesesMask;
     hypothesis_verification(scene, all_registered_instances, hypothesesMask);
@@ -933,19 +939,26 @@ main (int argc, char *argv[])
     for (size_t i = 0; i < all_registered_instances.size (); ++i)
     {
       std::stringstream ss_instance;
-      // ss_instance << "instance_" << i;
 
-      // Instances after ICP, if pass hypothesis verification then it is green, if not then cyan.
-      CloudStyle registeredStyles = hypothesesMask[i] ? style_green : style_cyan;
-      ss_instance << "registered_instance_" << i  << std::endl;
-      pcl::visualization::PointCloudColorHandlerCustom<PointType> registered_instance_color_handler (all_registered_instances[i], registeredStyles.r,
-                                                                                                    registeredStyles.g, registeredStyles.b);
-      viewer.addPointCloud (all_registered_instances[i], registered_instance_color_handler, ss_instance.str ());
-      viewer.setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, registeredStyles.size, ss_instance.str ());
+      if (hypothesesMask[i]) {
+        tfMatrix_hv_true.push_back(all_final_tfMatrixList[i]);
+      }
+      else{
+        tfMatrix_hv_false.push_back(all_final_tfMatrixList[i]);
+      }
+
+      if (enableViewer) {    
+        // Instances after ICP, if pass hypothesis verification then it is green, if not then cyan.
+        CloudStyle registeredStyles = hypothesesMask[i] ? style_green : style_cyan;
+        ss_instance << "registered_instance_" << i  << std::endl;
+        pcl::visualization::PointCloudColorHandlerCustom<PointType> registered_instance_color_handler (all_registered_instances[i], registeredStyles.r,
+                                                                                                      registeredStyles.g, registeredStyles.b);
+        viewer.addPointCloud (all_registered_instances[i], registered_instance_color_handler, ss_instance.str ());
+        viewer.setPointCloudRenderingProperties (pcl::visualization::PCL_VISUALIZER_POINT_SIZE, registeredStyles.size, ss_instance.str ());
+      }
     }
 
-    while (!viewer.wasStopped ())
-    {
+    while (!viewer.wasStopped () && enableViewer) {
       viewer.spinOnce ();
     }
   }
@@ -1001,7 +1014,7 @@ void __test_final_tranformation(const pcl::PointCloud<PointType>::Ptr& scene, st
   /* Show all the model pcd after transformed, comparing it with the output from viewer in main function
    *
    *
-  /*
+  */
   pcl::visualization::PCLVisualizer viewer ("Hypotheses Verification");
   viewer.addPointCloud (scene, "scene_cloud");
 
