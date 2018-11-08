@@ -203,6 +203,9 @@ target_link_libraries(matchingLocalPipeline ${catkin_LIBRARIES} ${PCL_LIBRARIES}
 add_executable(utils_tools include/pcl_objRec/impl/utils_tools.cpp)
 target_link_libraries(utils_tools ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
+add_executable(recogSrvSrver src/recogSrvSrver.cpp)
+target_link_libraries(recogSrvSrver ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
