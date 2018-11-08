@@ -35,26 +35,26 @@
  *
  */
 
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_cloud.h>
+#include <pcl/common/transforms.h>
+#include <pcl/console/parse.h>
 #include <pcl/correspondence.h>
+#include <pcl/features/board.h>
+#include <pcl/features/fpfh_omp.h>
 #include <pcl/features/normal_3d_omp.h>
 #include <pcl/features/shot_omp.h>
-#include <pcl/features/fpfh_omp.h>
-#include <pcl/features/board.h>
 #include <pcl/filters/uniform_sampling.h>
-#include <pcl/recognition/cg/hough_3d.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/kdtree/impl/kdtree_flann.hpp>
+#include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/point_cloud.h>
 #include <pcl/recognition/cg/geometric_consistency.h>
+#include <pcl/recognition/cg/hough_3d.h>
 #include <pcl/recognition/hv/hv_go.h>
 #include <pcl/registration/icp.h>
 #include <pcl/visualization/pcl_visualizer.h>
-#include <pcl/kdtree/kdtree_flann.h>
-#include <pcl/kdtree/impl/kdtree_flann.hpp>
-#include <pcl/common/transforms.h>
-#include <pcl/console/parse.h>
 #include <pcl_objRec/impl/utils.cpp>
-#include <ros/ros.h>
 #include <ros/console.h>
+#include <ros/ros.h>
 
 typedef pcl::PointXYZ PointType;
 typedef pcl::Normal NormalType;
@@ -68,7 +68,11 @@ struct CloudStyle {
     double b;
     double size;
 
-    CloudStyle(double r, double g, double b, double size) : r(r), g(g), b(b), size(size) {}
+    CloudStyle(double r, double g, double b, double size)
+        : r(r)
+        , g(g)
+        , b(b)
+        , size(size) {}
 };
 
 CloudStyle style_white(255.0, 255.0, 255.0, 4.0);
@@ -122,7 +126,8 @@ void setupResolution(float resolution);
 
 void read_pcd(const std::string& baseName, pcl::PointCloud<PointType>::Ptr& pnts);
 
-// after confirmation the correctness of final_tfMatrixList, registered_instances can be removed and generate it outside
+// after confirmation the correctness of final_tfMatrixList, registered_instances can be removed and
+// generate it outside
 // the function
 void matchShot(const std::string& modelName,
                pcl::PointCloud<PointType>::Ptr& scene,
@@ -173,11 +178,13 @@ void view_hv_result(bool enableViewer,
                     std::vector<bool>& hypothesesMask,
                     std::vector<pcl::PointCloud<PointType>::ConstPtr>& all_registered_instances);
 
-// rosrun ros_pcl matchingLocalPipeline --scene /filtered/scene2_points_.pcd --corr_dist 0.4 --model lf064-05 --do_icp
-// -v -c -r --algorithm GC --normal_ss 2 --model_ss 1.2 --scene_ss 1.2 --rf_rad 2.4 --descr_rad 2.4 --cg_size 3
+// rosrun ros_pcl matchingLocalPipeline --scene /filtered/scene2_points_.pcd --corr_dist 0.4 --model
+// lf064-05 --do_icp
+// -v -c -r --algorithm GC --normal_ss 2 --model_ss 1.2 --scene_ss 1.2 --rf_rad 2.4 --descr_rad 2.4
+// --cg_size 3
 // --cg_thresh 8 > log.txt
-int main(int argc, char* argv[]) {
-    parseCommandLine(argc, argv);
+void recognize() {
+    // parseCommandLine(argc, argv);
     // Recognition modelList
     std::vector<std::string> modelList{"lf064-01", "lf064-02", "lf064-03", "lf064-04", "lf064-05"};
     if (disableModelList_) {
@@ -196,15 +203,25 @@ int main(int argc, char* argv[]) {
 
     // initialize variable for storing data
     std::vector<pcl::PointCloud<PointType>::Ptr> modelpcdList; // vector of model pcd
-    std::vector<int> no_model_instances; // Matrix Vector to store all transformation matrix after icp
+    std::vector<int> no_model_instances; // Matrix Vector to store all transformation
+                                         // matrix after icp
     std::vector<Eigen::Matrix4f> all_final_tfMatrixList;
-    std::vector<pcl::PointCloud<PointType>::ConstPtr> all_registered_instances; // Vector of transformed pointclouds
+    std::vector<pcl::PointCloud<PointType>::ConstPtr>
+        all_registered_instances; // Vector of transformed pointclouds
 
     // ##############################
     // ### Start Recognition, ICP ###
     // ##############################
-    matchAllModels(
-        true, modelList, scene, scene_normals, scene_keypoints, scene_descriptors, scene_fpfhDescriptors, no_model_instances, all_final_tfMatrixList, all_registered_instances);
+    matchAllModels(true,
+                   modelList,
+                   scene,
+                   scene_normals,
+                   scene_keypoints,
+                   scene_descriptors,
+                   scene_fpfhDescriptors,
+                   no_model_instances,
+                   all_final_tfMatrixList,
+                   all_registered_instances);
 
     //__test_final_tranformation(scene, modelpcdList, no_model_instances, all_final_tfMatrixList);
 
@@ -223,8 +240,6 @@ int main(int argc, char* argv[]) {
     else {
         std::cout << "No instance found !!" << std::endl;
     }
-
-    return (0);
 }
 
 void showHelp(char* filename) {
@@ -235,12 +250,14 @@ void showHelp(char* filename) {
     std::cout << "*                                                                         *" << std::endl;
     std::cout << "***************************************************************************" << std::endl
               << std::endl;
-    std::cout << "Usage: " << filename << " model_filename.pcd scene_filename.pcd [Options]" << std::endl << std::endl;
+    std::cout << "Usage: " << filename << " model_filename.pcd scene_filename.pcd [Options]" << std::endl
+              << std::endl;
     std::cout << "Options:" << std::endl;
     std::cout << "     -h:                         Show this help." << std::endl;
     std::cout << "     -k:                         Show used keypoints." << std::endl;
     std::cout << "     -c:                         Show used correspondences." << std::endl;
-    std::cout << "     -r:                         Compute the model cloud resolution and multiply" << std::endl;
+    std::cout << "     -r:                         Compute the model cloud resolution and multiply"
+              << std::endl;
     std::cout << "     -v:                         Enable Viewer" << std::endl;
     std::cout << "                                 each radius given by that value." << std::endl;
     std::cout << "     --algorithm (Hough|GC):     Clustering algorithm used (default Hough)." << std::endl;
@@ -252,11 +269,17 @@ void showHelp(char* filename) {
     std::cout << "     --descr_rad val:            Descriptor radius (default 0.02)" << std::endl;
     std::cout << "     --cg_size val:              Cluster size (default 0.01)" << std::endl;
     std::cout << "     --cg_thresh val:            Clustering threshold (default 5)" << std::endl;
-    std::cout << "     --model val:                Enalbe single model matching and specified model name (lf064-05)" << std::endl;
-    std::cout << "     --scene val:                Specified scene name (/filtered/scene2_points_.pcd)" << std::endl;
+    std::cout << "     --model val:                Enalbe single model matching and specified "
+                 "model name (lf064-05)"
+              << std::endl;
+    std::cout
+        << "     --scene val:                Specified scene name (/filtered/scene2_points_.pcd)"
+        << std::endl;
     std::cout << "     --do_icp val:               Enable icp registration" << std::endl;
-    std::cout << "     --detector (iss|sift|shot): Keypoint detector (default uni)" << std::endl << std::endl;
-    std::cout << "     --descriptor (shot):            If changed, need to recompile (default shot)" << std::endl
+    std::cout << "     --detector (iss|sift|shot): Keypoint detector (default uni)" << std::endl
+              << std::endl;
+    std::cout << "     --descriptor (shot):            If changed, need to recompile (default shot)"
+              << std::endl
               << std::endl;
 }
 
@@ -330,7 +353,9 @@ void setupResolution(float resolution) {
 void read_pcd(const std::string& baseName, pcl::PointCloud<PointType>::Ptr& pnts) {
     std::string filename = modelDir + baseName;
     ROS_DEBUG("Read pcd from file: %s", filename.c_str());
-    if (pcl::io::loadPCDFile<PointType>(filename, *pnts) < 0) { ROS_FATAL("Error loading model cloud."); }
+    if (pcl::io::loadPCDFile<PointType>(filename, *pnts) < 0) {
+        ROS_FATAL("Error loading model cloud.");
+    }
 }
 
 void matchShot(const std::string& modelName,
@@ -367,13 +392,15 @@ void matchShot(const std::string& modelName,
     uniform_sampling.setInputCloud(model);
     uniform_sampling.setRadiusSearch(model_ss_);
     uniform_sampling.filter(*model_keypoints);
-    std::cout << "Model total points: " << model->size() << "; Selected Keypoints: " << model_keypoints->size() << std::endl;
+    std::cout << "Model total points: " << model->size()
+              << "; Selected Keypoints: " << model_keypoints->size() << std::endl;
 
     if (calculateScene) {
         uniform_sampling.setInputCloud(scene);
         uniform_sampling.setRadiusSearch(scene_ss_);
         uniform_sampling.filter(*scene_keypoints);
-        std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
+        std::cout << "Scene total points: " << scene->size()
+                  << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
     }
 
     //  Compute Descriptor for keypoints
@@ -401,7 +428,8 @@ void matchShot(const std::string& modelName,
     std::vector<int> model_good_keypoints_indices;
     std::vector<int> scene_good_keypoints_indices;
 
-    //  For each scene keypoint descriptor, find nearest neighbor into the model keypoints descriptor cloud and add it
+    //  For each scene keypoint descriptor, find nearest neighbor into the model keypoints
+    //  descriptor cloud and add it
     //  to the correspondences vector.
     for (size_t i = 0; i < scene_descriptors->size(); ++i) {
         std::vector<int> neigh_indices(1);
@@ -410,10 +438,12 @@ void matchShot(const std::string& modelName,
         {
             continue;
         }
-        int found_neighs = match_search.nearestKSearch(scene_descriptors->at(i), 1, neigh_indices, neigh_sqr_dists);
-        if (found_neighs == 1 && neigh_sqr_dists[0] < corr_dist_) //  add match only if the squared descriptor distance
-                                                                  //  is less than 0.25 (SHOT descriptor distances are
-                                                                  //  between 0 and 1 by design)
+        int found_neighs =
+            match_search.nearestKSearch(scene_descriptors->at(i), 1, neigh_indices, neigh_sqr_dists);
+        if (found_neighs == 1 &&
+            neigh_sqr_dists[0] < corr_dist_) //  add match only if the squared descriptor distance
+                                             //  is less than 0.25 (SHOT descriptor distances are
+                                             //  between 0 and 1 by design)
         {
             pcl::Correspondence corr(neigh_indices[0], static_cast<int>(i), neigh_sqr_dists[0]);
             model_scene_corrs->push_back(corr);
@@ -518,7 +548,8 @@ void matchShot(const std::string& modelName,
             pcl::IterativeClosestPoint<PointType, PointType> icp;
             icp.setMaximumIterations(icp_max_iter_);
             icp.setMaxCorrespondenceDistance(icp_corr_distance_);
-            // // The epsilon (difference) between the previous transformation and the current estimated transformation
+            // // The epsilon (difference) between the previous transformation and the current
+            // estimated transformation
             // is smaller than an user imposed value
             icp.setTransformationEpsilon(1e-7);
             // // The sum of Euclidean squared errors is smaller than a user defined threshold
@@ -543,13 +574,16 @@ void matchShot(const std::string& modelName,
         cout << "-----------------" << endl << endl;
     }
     else {
-        for (size_t i = 0; i < rototranslations.size(); ++i) { final_tfMatrixList.push_back(rototranslations[i]); }
+        for (size_t i = 0; i < rototranslations.size(); ++i) {
+            final_tfMatrixList.push_back(rototranslations[i]);
+        }
     }
 
     //  Output results
     std::cout << "Model instances found: " << rototranslations.size() << std::endl;
     for (size_t i = 0; i < rototranslations.size(); ++i) {
-        std::cout << "        Correspondences belonging to this instance: " << clustered_corrs[i].size() << std::endl;
+        std::cout << "        Correspondences belonging to this instance: " << clustered_corrs[i].size()
+                  << std::endl;
     }
 
     //  Visualization before HV
@@ -589,13 +623,15 @@ void matchFpfh(const std::string& modelName,
     uniform_sampling.setInputCloud(model);
     uniform_sampling.setRadiusSearch(model_ss_);
     uniform_sampling.filter(*model_keypoints);
-    std::cout << "Model total points: " << model->size() << "; Selected Keypoints: " << model_keypoints->size() << std::endl;
+    std::cout << "Model total points: " << model->size()
+              << "; Selected Keypoints: " << model_keypoints->size() << std::endl;
 
     if (calculateScene) {
         uniform_sampling.setInputCloud(scene);
         uniform_sampling.setRadiusSearch(scene_ss_);
         uniform_sampling.filter(*scene_keypoints);
-        std::cout << "Scene total points: " << scene->size() << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
+        std::cout << "Scene total points: " << scene->size()
+                  << "; Selected Keypoints: " << scene_keypoints->size() << std::endl;
     }
 
     //  Compute Descriptor for keypoints
@@ -621,7 +657,8 @@ void matchFpfh(const std::string& modelName,
     pcl::KdTreeFLANN<FPFHDescriptor> match_search;
     match_search.setInputCloud(model_descriptors);
 
-    //  For each scene keypoint descriptor, find nearest neighbor into the model keypoints descriptor cloud and add it
+    //  For each scene keypoint descriptor, find nearest neighbor into the model keypoints
+    //  descriptor cloud and add it
     //  to the correspondences vector.
     for (size_t i = 0; i < scene_descriptors->size(); ++i) {
         std::vector<int> neigh_indices(1);
@@ -630,10 +667,12 @@ void matchFpfh(const std::string& modelName,
         {
             continue;
         }
-        int found_neighs = match_search.nearestKSearch(scene_descriptors->at(i), 1, neigh_indices, neigh_sqr_dists);
-        if (found_neighs == 1 && neigh_sqr_dists[0] < corr_dist_) //  add match only if the squared descriptor distance
-                                                                  //  is less than 0.25 (SHOT descriptor distances are
-                                                                  //  between 0 and 1 by design)
+        int found_neighs =
+            match_search.nearestKSearch(scene_descriptors->at(i), 1, neigh_indices, neigh_sqr_dists);
+        if (found_neighs == 1 &&
+            neigh_sqr_dists[0] < corr_dist_) //  add match only if the squared descriptor distance
+                                             //  is less than 0.25 (SHOT descriptor distances are
+                                             //  between 0 and 1 by design)
         {
             pcl::Correspondence corr(neigh_indices[0], static_cast<int>(i), neigh_sqr_dists[0]);
             model_scene_corrs->push_back(corr);
@@ -705,7 +744,8 @@ void matchFpfh(const std::string& modelName,
     std::cout << "Model instances found: " << rototranslations.size() << std::endl;
     for (size_t i = 0; i < rototranslations.size(); ++i) {
         // std::cout << "\n    Instance " << i + 1 << ":" << std::endl;
-        std::cout << "        Correspondences belonging to this instance: " << clustered_corrs[i].size() << std::endl;
+        std::cout << "        Correspondences belonging to this instance: " << clustered_corrs[i].size()
+                  << std::endl;
     }
 
     if (enableViewer_)
@@ -740,9 +780,12 @@ void matchAllModels(bool matchAllmodels,
         else {
             std::cout << "please enter shot or fpfh(not implemented) for descriptor" << std::endl;
         }
-        all_final_tfMatrixList.insert(all_final_tfMatrixList.end(), final_tfMatrixList.begin(), final_tfMatrixList.end());
-        all_registered_instances.insert(
-            all_registered_instances.end(), registered_instances.begin(), registered_instances.end());
+        all_final_tfMatrixList.insert(all_final_tfMatrixList.end(),
+                                      final_tfMatrixList.begin(),
+                                      final_tfMatrixList.end());
+        all_registered_instances.insert(all_registered_instances.end(),
+                                        registered_instances.begin(),
+                                        registered_instances.end());
     }
 }
 
@@ -763,26 +806,31 @@ void viewSingleMatch(pcl::PointCloud<PointType>::Ptr& scene,
     pcl::PointCloud<PointType>::Ptr off_scene_model_keypoints(new pcl::PointCloud<PointType>());
 
     if (show_correspondences_ || show_keypoints_) {
-        //  We are translating the model so that it doesn't end in the middle of the scene representation
+        //  We are translating the model so that it doesn't end in the middle of the scene
+        //  representation
         pcl::transformPointCloud(*model, *off_scene_model, Eigen::Vector3f(-1, 0, 0), Eigen::Quaternionf(1, 0, 0, 0));
-        pcl::transformPointCloud(
-            *model_keypoints, *off_scene_model_keypoints, Eigen::Vector3f(-1, 0, 0), Eigen::Quaternionf(1, 0, 0, 0));
+        pcl::transformPointCloud(*model_keypoints,
+                                 *off_scene_model_keypoints,
+                                 Eigen::Vector3f(-1, 0, 0),
+                                 Eigen::Quaternionf(1, 0, 0, 0));
 
-        pcl::visualization::PointCloudColorHandlerCustom<PointType> off_scene_model_color_handler(off_scene_model, 255, 255, 128);
+        pcl::visualization::PointCloudColorHandlerCustom<PointType> off_scene_model_color_handler(
+            off_scene_model, 255, 255, 128);
         viewer.addPointCloud(off_scene_model, off_scene_model_color_handler, "off_scene_model");
     }
 
     if (show_keypoints_) {
-        pcl::visualization::PointCloudColorHandlerCustom<PointType> scene_keypoints_color_handler(scene_keypoints, 0, 0, 255);
+        pcl::visualization::PointCloudColorHandlerCustom<PointType> scene_keypoints_color_handler(
+            scene_keypoints, 0, 0, 255);
         viewer.addPointCloud(scene_keypoints, scene_keypoints_color_handler, "scene_keypoints");
         viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "scene_keypoints");
 
         pcl::visualization::PointCloudColorHandlerCustom<PointType> off_scene_model_keypoints_color_handler(
             off_scene_model_keypoints, 0, 0, 255);
-        viewer.addPointCloud(
-            off_scene_model_keypoints, off_scene_model_keypoints_color_handler, "off_scene_model_keypoints");
-        viewer.setPointCloudRenderingProperties(
-            pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "off_scene_model_keypoints");
+        viewer.addPointCloud(off_scene_model_keypoints,
+                             off_scene_model_keypoints_color_handler,
+                             "off_scene_model_keypoints");
+        viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "off_scene_model_keypoints");
     }
 
     for (size_t i = 0; i < rototranslations.size(); ++i) {
@@ -802,7 +850,8 @@ void viewSingleMatch(pcl::PointCloud<PointType>::Ptr& scene,
                 PointType& model_point = off_scene_model_keypoints->at(clustered_corrs[i][j].index_query);
                 PointType& scene_point = scene_keypoints->at(clustered_corrs[i][j].index_match);
 
-                //  We are drawing a line for each pair of clustered correspondences found between the model and the
+                //  We are drawing a line for each pair of clustered correspondences found between
+                //  the model and the
                 //  scene
                 viewer.addLine<PointType, PointType>(model_point, scene_point, 0, 255, 0, ss_line.str());
             }
@@ -820,7 +869,8 @@ void viewSingleMatch(pcl::PointCloud<PointType>::Ptr& scene,
         }
     }
     else if (do_icp_ && registered_instances.size() == 0) {
-        std::cout << "[WARN] enabled doICP but no registered_instances, probably it's because ICP not yet implemented "
+        std::cout << "[WARN] enabled doICP but no registered_instances, probably it's because ICP "
+                     "not yet implemented "
                      "with FPFH"
                   << std::endl;
     }
@@ -878,14 +928,21 @@ void view_hv_result(bool enableViewer,
         std::stringstream ss_instance;
 
         if (enableViewer) {
-            // Instances after ICP, if pass hypothesis verification then it is green, if not then cyan.
+            // Instances after ICP, if pass hypothesis verification then it is green, if not then
+            // cyan.
             CloudStyle registeredStyles = hypothesesMask[i] ? style_green : style_cyan;
             ss_instance << "registered_instance_" << i << std::endl;
             pcl::visualization::PointCloudColorHandlerCustom<PointType> registered_instance_color_handler(
-                all_registered_instances[i], registeredStyles.r, registeredStyles.g, registeredStyles.b);
-            viewer.addPointCloud(all_registered_instances[i], registered_instance_color_handler, ss_instance.str());
-            viewer.setPointCloudRenderingProperties(
-                pcl::visualization::PCL_VISUALIZER_POINT_SIZE, registeredStyles.size, ss_instance.str());
+                all_registered_instances[i],
+                registeredStyles.r,
+                registeredStyles.g,
+                registeredStyles.b);
+            viewer.addPointCloud(all_registered_instances[i],
+                                 registered_instance_color_handler,
+                                 ss_instance.str());
+            viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE,
+                                                    registeredStyles.size,
+                                                    ss_instance.str());
         }
     }
     while (!viewer.wasStopped() && enableViewer) { viewer.spinOnce(); }
@@ -905,7 +962,8 @@ void __test_final_tranformation(const pcl::PointCloud<PointType>::Ptr& scene,
                                 std::vector<pcl::PointCloud<PointType>::Ptr>& modelpcdList,
                                 std::vector<int>& no_model_instances,
                                 std::vector<Eigen::Matrix4f>& all_final_tfMatrixList) {
-    /* Show all the model pcd after transformed, comparing it with the output from viewer in main function
+    /* Show all the model pcd after transformed, comparing it with the output from viewer in main
+     * function
      *
      *
     */
@@ -934,8 +992,9 @@ void __test_final_tranformation(const pcl::PointCloud<PointType>::Ptr& scene,
         pcl::visualization::PointCloudColorHandlerCustom<PointType> instance_color_handler(
             instances[i], registeredStyles.r, registeredStyles.g, registeredStyles.b);
         viewer.addPointCloud(instances[i], instance_color_handler, ss_instance.str());
-        viewer.setPointCloudRenderingProperties(
-            pcl::visualization::PCL_VISUALIZER_POINT_SIZE, registeredStyles.size, ss_instance.str());
+        viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE,
+                                                registeredStyles.size,
+                                                ss_instance.str());
     }
 
     while (!viewer.wasStopped()) { viewer.spinOnce(); }
