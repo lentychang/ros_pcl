@@ -4,27 +4,23 @@
 #include <pcl_objRec/model_prepare.h>
 #include <ros_pcl_msgs/srv_preprocess.h>
 
-bool preprocessSrvCb(ros_pcl_msgs::srv_preprocess::Request &req, ros_pcl_msgs::srv_preprocess::Response &res) {
-    res.success=true;
-    if (req.filename=="lf064-01" || req.filename=="lf064-02" || 
-        req.filename=="lf064-03" || req.filename=="lf064-04" || 
-        req.filename=="lf064-05" || req.filename=="lf064-06" ) {
-        
+bool preprocessSrvCb(ros_pcl_msgs::srv_preprocess::Request& req, ros_pcl_msgs::srv_preprocess::Response& res) {
+    res.success = true;
+    if (req.filename == "lf064-01" || req.filename == "lf064-02" || req.filename == "lf064-03" ||
+        req.filename == "lf064-04" || req.filename == "lf064-05" || req.filename == "lf064-06") {
         modelPreprocess(req.dataDir, req.filename);
     }
-    else  {
+    else {
         scenenPreprocess(req.dataDir, req.filename, req.nonPlnPntRatio);
-        
+
         // ROS_ERROR("preprocess service... filename doesn't not exist");
         // res.success=false;
     }
-    
+
     return true;
 }
 
-
 int main(int argc, char** argv) {
-
     ros::init(argc, argv, "preprocessSrvServer");
 
     ros::NodeHandle nh_srv;
@@ -33,5 +29,4 @@ int main(int argc, char** argv) {
     ROS_INFO("Preprocess Service started");
     ROS_INFO("command [dataDir] [filename]");
     ros::spin();
-
 }
