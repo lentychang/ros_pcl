@@ -55,6 +55,7 @@
 #include <pcl_objRec/impl/utils.cpp>
 #include <ros/console.h>
 #include <ros/ros.h>
+#include <pcl_objRec/impl/yamlSimpleLoad.cpp>
 
 typedef pcl::PointXYZ PointType;
 typedef pcl::Normal NormalType;
@@ -81,9 +82,10 @@ CloudStyle style_green(0.0, 255.0, 0.0, 5.0);
 CloudStyle style_cyan(93.0, 200.0, 217.0, 4.0);
 CloudStyle style_violet(255.0, 0.0, 255.0, 8.0);
 
-std::string modelDir("/root/exchange/tempData");
+std::string modelDir_("/root/exchange/tempData");
 std::string modelName_("lf064-05");
 std::string sceneName_("/filtered/scene2_points_.pcd");
+std::vector<std::string> modelList_ ({"lf064-01", "lf064-02", "lf064-03", "lf064-04", "lf064-05"});
 bool disableModelList_(false);
 
 std::string detector_ = "uni";
@@ -155,7 +157,6 @@ void viewSingleMatch(pcl::PointCloud<PointType>::Ptr& scene,
                      std::vector<pcl::PointCloud<PointType>::ConstPtr>& registered_instances);
 
 void matchAllModels(bool matchAllmodels,
-                    std::vector<std::string>& modelList,
                     pcl::PointCloud<PointType>::Ptr& scene,
                     pcl::PointCloud<pcl::Normal>::Ptr& scene_normals,
                     pcl::PointCloud<PointType>::Ptr& scene_keypoints,
@@ -183,13 +184,78 @@ void view_hv_result(bool enableViewer,
 // -v -c -r --algorithm GC --normal_ss 2 --model_ss 1.2 --scene_ss 1.2 --rf_rad 2.4 --descr_rad 2.4
 // --cg_size 3
 // --cg_thresh 8 > log.txt
-void recognize() {
+
+void recognize(const std::string& configFilePath);
+bool fakeArgvByYaml(const std::string& yamlPath);
+
+
+
+int main(int argc, char* argv[]){
+    recognize("/root/catkin_ws/src/ros_pcl/config/matchinLocalPipline_enableRes.yaml");
+}
+
+
+bool fakeArgvByYaml(const std::string &yamlPath){
+    try{
+
+        LOAD_YAML yaml(yamlPath);
+        
+        yaml.load<std::string>("model_dir", modelDir_);
+        yaml.load<std::string>("model_name", modelName_);
+        yaml.loadStringList("model_list", modelList_);
+        yaml.load<std::string>("scene_name", sceneName_);
+        yaml.load<bool>("recog_single_model", disableModelList_);
+        yaml.load<bool>("use_cloud_resolution", use_cloud_resolution_);
+
+        yaml.load<std::string>("detector", detector_);
+        yaml.load<std::string>("descriptor", descriptor_);
+        yaml.load<float>("normal_radius", normal_ss_);
+        yaml.load<float>("model_downsample_size", model_ss_);
+        yaml.load<float>("scene_downsample_size", scene_ss_);
+        yaml.load<float>("descriptor_radius", descr_rad_);
+
+        yaml.load<bool>("use_hough", use_hough_);
+        yaml.load<float>("rf_rad", rf_rad_);
+        yaml.load<float>("corr_dist", corr_dist_);
+        yaml.load<float>("cg_size", cg_size_);
+        yaml.load<float>("cg_thres", cg_thresh_);
+
+        yaml.load<bool>("do_icp", do_icp_);
+        yaml.load<int>("icp_max_iter", icp_max_iter_);
+        yaml.load<float>("icp_corr_dist", icp_corr_distance_);
+
+        yaml.load<float>("hv_resolution", hv_resolution_);
+        yaml.load<float>("hv_occupancy_grid_resolution", hv_occupancy_grid_resolution_);
+        yaml.load<float>("hv_clutter_reg", hv_clutter_reg_);
+        yaml.load<float>("hv_inliner_thres", hv_inlier_th_);
+        yaml.load<float>("hv_occlusion_thres", hv_occlusion_th_);
+        yaml.load<float>("hv_rad_clutter", hv_rad_clutter_);
+        yaml.load<float>("hv_regularizer", hv_regularizer_);
+        yaml.load<float>("hv_rad_normals", hv_rad_normals_);
+        yaml.load<bool>("hv_detect_clutter", hv_detect_clutter_);
+
+        yaml.load<bool>("enableViewer", enableViewer_);
+        yaml.load<bool>("show_keypoints", show_keypoints_);
+        yaml.load<bool>("show_correspondences", show_correspondences_);
+    }
+    catch (const std::string& msg){
+        std::cerr << msg << std::endl;
+        return false;
+    }
+    return true;
+}
+
+
+void recognize(const std::string &configFilePath) {
     // parseCommandLine(argc, argv);
     // Recognition modelList
-    std::vector<std::string> modelList{"lf064-01", "lf064-02", "lf064-03", "lf064-04", "lf064-05"};
+    if (fakeArgvByYaml(configFilePath)) { std::cout << "[INFO] config success!" << std::endl; }
+
     if (disableModelList_) {
-        modelList.clear();
-        modelList.push_back(modelName_);
+        std::cout << "[WARN] Multi model reconition disabled!" << std::endl;
+        modelList_.clear();
+        modelList_.push_back(modelName_);
+        for (auto& model: modelList_){std::cout << "[INFO] only try to recognize the folowwing model:" << model << std::endl;}
     }
 
     pcl::PointCloud<PointType>::Ptr scene(new pcl::PointCloud<PointType>());
@@ -213,7 +279,6 @@ void recognize() {
     // ### Start Recognition, ICP ###
     // ##############################
     matchAllModels(true,
-                   modelList,
                    scene,
                    scene_normals,
                    scene_keypoints,
@@ -351,7 +416,7 @@ void setupResolution(float resolution) {
 }
 
 void read_pcd(const std::string& baseName, pcl::PointCloud<PointType>::Ptr& pnts) {
-    std::string filename = modelDir + baseName;
+    std::string filename = modelDir_ + baseName;
     ROS_DEBUG("Read pcd from file: %s", filename.c_str());
     if (pcl::io::loadPCDFile<PointType>(filename, *pnts) < 0) {
         ROS_FATAL("Error loading model cloud.");
@@ -753,7 +818,6 @@ void matchFpfh(const std::string& modelName,
 }
 
 void matchAllModels(bool matchAllmodels,
-                    std::vector<std::string>& modelList,
                     pcl::PointCloud<PointType>::Ptr& scene,
                     pcl::PointCloud<pcl::Normal>::Ptr& scene_normals,
                     pcl::PointCloud<PointType>::Ptr& scene_keypoints,
@@ -763,10 +827,10 @@ void matchAllModels(bool matchAllmodels,
                     std::vector<Eigen::Matrix4f>& all_final_tfMatrixList,
                     std::vector<pcl::PointCloud<PointType>::ConstPtr>& all_registered_instances) {
     // iterate every model in the modelList for recognition
-    for (size_t i = 0; i < modelList.size(); ++i) {
+    for (size_t i = 0; i < modelList_.size(); ++i) {
         std::vector<pcl::PointCloud<PointType>::ConstPtr> registered_instances;
         std::vector<Eigen::Matrix4f> final_tfMatrixList;
-        std::string modelName = modelList[i];
+        std::string modelName = modelList_[i];
         std::cout << "--- Start recognize " << modelName << " ----" << std::endl;
 
         if (descriptor_ == "shot") {
@@ -948,10 +1012,10 @@ void view_hv_result(bool enableViewer,
     while (!viewer.wasStopped() && enableViewer) { viewer.spinOnce(); }
 }
 
-void readAllmodels(std::vector<std::string>& modelList, std::vector<pcl::PointCloud<PointType>::Ptr>& modelpcdList) {
-    for (size_t i = 0; i < modelList.size(); ++i) {
-        std::string modelName = modelList[i];
-        std::string modelfilename = "/srcPCD/" + modelList[i] + ".pcd";
+void readAllmodels(std::vector<pcl::PointCloud<PointType>::Ptr>& modelpcdList) {
+    for (size_t i = 0; i < modelList_.size(); ++i) {
+        std::string modelName = modelList_[i];
+        std::string modelfilename = "/srcPCD/" + modelList_[i] + ".pcd";
         pcl::PointCloud<PointType>::Ptr modelpcd(new pcl::PointCloud<PointType>());
         read_pcd(modelfilename, modelpcd);
         modelpcdList.push_back(modelpcd);

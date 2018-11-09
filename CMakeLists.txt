@@ -6,6 +6,9 @@ add_compile_options(-std=c++11)
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 set(CATKIN_DEVEL_PREFIX /root/catkin_ws/devel)
 
+set(YAML_CPP_INCLUDE_DIR /usr/local/include)
+set(YAML_CPP_LIBRARY /usr/local/lib/libyaml-cpp.so)
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -137,6 +140,7 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
+  ${YAML_CPP_INCLUDE_DIR}
 )
 find_package(Eigen3 REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
@@ -195,7 +199,7 @@ add_executable(pcd_merge src/pcd_merge.cpp)
 target_link_libraries(pcd_merge ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(matchingLocalPipeline src/matchingLocalPipeline.cpp)
-target_link_libraries(matchingLocalPipeline ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+target_link_libraries(matchingLocalPipeline ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${YAML_CPP_LIBRARY})
 
 # add_executable(computeResolution src/computeResolution.cpp include/pcl_objRec/impl/utils.cpp)
 # target_link_libraries(computeResolution ${catkin_LIBRARIES} ${PCL_LIBRARIES})
@@ -203,8 +207,8 @@ target_link_libraries(matchingLocalPipeline ${catkin_LIBRARIES} ${PCL_LIBRARIES}
 add_executable(utils_tools include/pcl_objRec/impl/utils_tools.cpp)
 target_link_libraries(utils_tools ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
-add_executable(recogSrvSrver src/recogSrvSrver.cpp)
-target_link_libraries(recogSrvSrver ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+# add_executable(recogSrvSrver src/recogSrvSrver.cpp)
+# target_link_libraries(recogSrvSrver ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

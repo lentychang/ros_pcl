@@ -1,0 +1,51 @@
+# enable use_cloud_resolution
+
+# dataConfig:
+model_dir: /root/exchange/tempData
+model_name: lf064-05
+model_list: ['lf064-01', 'lf064-02', 'lf064-03', 'lf064-04', 'lf064-05']
+scene_name: /filtered/scene2_points_.pcd
+recog_single_model: true
+use_cloud_resolution: true
+
+# description
+detector: uni
+descriptor: shot
+normal_radius: 2.0
+model_downsample_size: 1.2
+scene_downsample_size: 1.2
+descriptor_radius: 4.5
+
+# clustering
+# hough:true, geometric consistency: false
+use_hough: false
+# Reference frame radius for hough
+rf_rad: 3
+# correspondent_distance
+corr_dist: 0.4
+# consistency groupping size
+cg_size: 2.5
+# consistency groupping threshold
+cg_thres: 3
+
+# icp
+do_icp: true
+icp_max_iter: 5
+icp_corr_dist: 0.005
+
+# hypothesis_verification
+hv_resolution: 0.005
+hv_occupancy_grid_resolution: 0.01
+hv_clutter_reg: 5.0
+hv_inliner_thres: 0.005
+hv_occlusion_thres: 0.01
+hv_rad_clutter: 0.03
+hv_regularizer: 3.0
+hv_rad_normals: 0.05
+hv_detect_clutter: true
+
+# visualization
+enableViewer: true
+show_keypoints: false
+show_correspondences: false
+
