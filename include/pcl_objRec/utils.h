@@ -9,7 +9,6 @@
 #include <pcl/surface/mls.h>
 
 #include <vector>
-#include <ros/ros.h>
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/search/search.h>

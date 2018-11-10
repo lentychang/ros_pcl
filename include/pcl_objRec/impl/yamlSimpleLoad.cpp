@@ -1,17 +1,4 @@
-#include <yaml-cpp/yaml.h>
-#include <iostream>
-#include <fstream>
-
-class LOAD_YAML{
-  private:
-    bool __debug;
-  public:
-    YAML::Node yamlNode;
-    LOAD_YAML(const std::string &yamlFile);
-    template<typename T> void load(const std::string& key, T& val);
-    void loadStringList(const std::string& key, std::vector<std::string>& vec);
-};
-
+#include "../yamlSimpleLoad.h"
 bool __test(){
     // instantiate all parameters
     std::string yamlFile = "/root/catkin_ws/src/ros_pcl/config/test.yaml";
