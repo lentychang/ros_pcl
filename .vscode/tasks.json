@@ -3,6 +3,18 @@
     // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
+        {   "label": "build",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-g", "-std=c++11", "${file}", "-o", "${fileBasenameNoExtension}",
+                "-I/usr/local/include", "-L/usr/local/lib", "-lyaml-cpp"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
         {   "label": "catkinMake",
             "type": "shell",
             "command": "cd ~/catkin_ws && source devel/setup.bash && catkin_make",
@@ -20,9 +32,9 @@
                 "isDefault": true
             }
         },
-        {   "label": "make_localPipeLine",
+        {   "label": "catkinMake_single",
             "type": "shell",
-            "command": "cd ~/catkin_ws/src/ros_pcl/src/pcl_object_recognition/build && make localPipeline -j3",
+            "command": "cd ~/catkin_ws && catkin_make ${fileBasenameNoExtension} -DCMAKE_BUILD_TYPE=RelWithDebInfo",
             "group": {
                 "kind": "build",
                 "isDefault": true
