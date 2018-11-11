@@ -198,7 +198,7 @@ target_link_libraries(transformListener  ${catkin_LIBRARIES} )
 add_executable(pcd_merge src/pcd_merge.cpp)
 target_link_libraries(pcd_merge ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
-add_executable(matchingLocalPipeline src/matchingLocalPipeline.cpp)
+add_executable(matchingLocalPipeline include/pcl_objRec/impl/matchingLocalPipeline.cpp)
 target_link_libraries(matchingLocalPipeline ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${YAML_CPP_LIBRARY})
 
 # add_executable(computeResolution src/computeResolution.cpp include/pcl_objRec/impl/utils.cpp)

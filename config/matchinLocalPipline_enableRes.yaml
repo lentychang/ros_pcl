@@ -45,7 +45,7 @@ hv_rad_normals: 0.05
 hv_detect_clutter: true
 
 # visualization
-enableViewer: true
+enableViewer: false
 show_keypoints: false
 show_correspondences: false
 

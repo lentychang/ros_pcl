@@ -43,9 +43,43 @@
 // --cg_size 3
 // --cg_thresh 8 > log.txt
 
-// int main(int argc, char* argv[]) {
-//     recognize("/root/catkin_ws/src/ros_pcl/config/matchinLocalPipline_enableRes.yaml");
-// }
+
+
+void filterResult_by_mask(std::vector<bool> const &mask, std::vector<int>& no_modelnames, std::vector<Eigen::Matrix4f> &all_tf_mat,
+                          std::vector<RecogResult> &accepted, std::vector<RecogResult> &rejected)
+{
+  std::vector<std::string> expanded_namelist;
+  for (size_t i=0; i<no_modelnames.size(); ++i){
+    for(int j=0; j< no_modelnames[i]; ++j){
+      expanded_namelist.push_back(modelList_[i]);
+    }
+  }
+  
+  assert(expanded_namelist.size()==mask.size());
+
+  for (int i=0;i<mask.size(); ++i){
+    if (mask[i]){
+      RecogResult a_recog_res {.tf_mat = all_tf_mat[i], .modelName = expanded_namelist[i]};
+      accepted.push_back(a_recog_res);
+    }
+    else{
+      RecogResult a_recog_res { .tf_mat=all_tf_mat[i], .modelName=expanded_namelist[i]};
+      // a_recog_res.tf_mat = ;
+      // a_recog_res.modelName = expanded_namelist[i];
+      rejected.push_back(a_recog_res);
+    }
+    assert((accepted.size()+rejected.size())==mask.size());
+  }
+  for (auto & a_instance : accepted){
+      std::cout << a_instance.tf_mat << std::endl;
+    }
+}
+
+int main(int argc, char* argv[])
+{
+  std::vector<RecogResult> acc, rej;
+  recognize("/root/catkin_ws/src/ros_pcl/config/matchinLocalPipline_enableRes.yaml", acc, rej);
+}
 
 bool fakeArgvByYaml(const std::string& yamlPath)
 {
@@ -99,7 +133,7 @@ bool fakeArgvByYaml(const std::string& yamlPath)
   return true;
 }
 
-void recognize(const std::string& configFilePath)
+void recognize(const std::string& configFilePath, std::vector<RecogResult> &accepted, std::vector<RecogResult> &rejected)
 {
   // parseCommandLine(argc, argv);
   // Recognition modelList
@@ -149,17 +183,23 @@ void recognize(const std::string& configFilePath)
   // #####################################
   // ### Start hypothesis verification ###
   // #####################################
+  std::vector<bool> hypothesesMask;
   if (static_cast<int>(all_registered_instances.size()) > 0)
   {
-    std::vector<bool> hypothesesMask;
+    std::cout << static_cast<int>(all_registered_instances.size()) << std::endl;
     hypothesis_verification(scene, all_registered_instances, hypothesesMask);
     // visualization
-    view_hv_result(enableViewer_, scene, hypothesesMask, all_registered_instances);
+    if (enableViewer_) view_hv_result(scene, hypothesesMask, all_registered_instances);
   }
   else
   {
     std::cout << "No instance found !!" << std::endl;
   }
+  assert(no_model_instances.size() == modelList_.size() && "len of #model_instance and modelList must be the same");
+  assert(hypothesesMask.size() == no_model_instances.size() && "len of mask and instances must be the same!!");
+  // std::vector<RecogResult> accepted, rejected;
+
+  filterResult_by_mask(hypothesesMask, no_model_instances, all_final_tfMatrixList, accepted, rejected);
 }
 
 void showHelp(char* filename)
@@ -874,13 +914,12 @@ void hypothesis_verification(const pcl::PointCloud<PointType>::Ptr& scene,
   std::cout << "-------------------------------" << std::endl;
 }
 
-void view_hv_result(bool enableViewer, const pcl::PointCloud<PointType>::Ptr& scene, std::vector<bool>& hypothesesMask,
+void view_hv_result(const pcl::PointCloud<PointType>::Ptr& scene, std::vector<bool>& hypothesesMask,
                     std::vector<pcl::PointCloud<PointType>::ConstPtr>& all_registered_instances)
 {
   // if (static_cast<int>( all_registered_instances.size ()) > 0) {
   // std::vector<bool> hypothesesMask;
   // hypothesis_verification(scene, all_registered_instances, hypothesesMask);
-
   pcl::visualization::PCLVisualizer viewer("Hypotheses Verification");
   viewer.addPointCloud(scene, "scene_cloud");
 
@@ -888,23 +927,21 @@ void view_hv_result(bool enableViewer, const pcl::PointCloud<PointType>::Ptr& sc
   {
     std::stringstream ss_instance;
 
-    if (enableViewer)
-    {
-      // Instances after ICP, if pass hypothesis verification then it is green, if not then
-      // cyan.
-      CloudStyle registeredStyles = hypothesesMask[i] ? style_green : style_cyan;
-      ss_instance << "registered_instance_" << i << std::endl;
-      pcl::visualization::PointCloudColorHandlerCustom<PointType> registered_instance_color_handler(
-          all_registered_instances[i], registeredStyles.r, registeredStyles.g, registeredStyles.b);
-      viewer.addPointCloud(all_registered_instances[i], registered_instance_color_handler, ss_instance.str());
-      viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, registeredStyles.size,
-                                              ss_instance.str());
-    }
+    // Instances after ICP, if pass hypothesis verification then it is green, if not then
+    // cyan.
+    CloudStyle registeredStyles = hypothesesMask[i] ? style_green : style_cyan;
+    ss_instance << "registered_instance_" << i << std::endl;
+    pcl::visualization::PointCloudColorHandlerCustom<PointType> registered_instance_color_handler(
+        all_registered_instances[i], registeredStyles.r, registeredStyles.g, registeredStyles.b);
+    viewer.addPointCloud(all_registered_instances[i], registered_instance_color_handler, ss_instance.str());
+    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, registeredStyles.size,
+                                            ss_instance.str());
   }
-  while (!viewer.wasStopped() && enableViewer)
+  while (!viewer.wasStopped() && enableViewer_)
   {
     viewer.spinOnce();
   }
+
 }
 
 void readAllmodels(std::vector<pcl::PointCloud<PointType>::Ptr>& modelpcdList)

@@ -75,6 +75,11 @@ struct CloudStyle
   }
 };
 
+struct RecogResult {
+  Eigen::Matrix4f tf_mat;
+  std::string modelName;
+};
+
 CloudStyle style_white(255.0, 255.0, 255.0, 4.0);
 CloudStyle style_red(255.0, 0.0, 0.0, 3.0);
 CloudStyle style_green(0.0, 255.0, 0.0, 5.0);
@@ -160,9 +165,10 @@ void __test_final_tranformation(const pcl::PointCloud<PointType>::Ptr& scene,
                                 std::vector<int>& no_model_instances,
                                 std::vector<Eigen::Matrix4f>& all_final_tfMatrixList);
 
-void view_hv_result(bool enableViewer, const pcl::PointCloud<PointType>::Ptr& scene, std::vector<bool>& hypothesesMask,
+void view_hv_result(const pcl::PointCloud<PointType>::Ptr& scene, std::vector<bool>& hypothesesMask,
                     std::vector<pcl::PointCloud<PointType>::ConstPtr>& all_registered_instances);
 
+void recognize(const std::string& configFilePath, std::vector<RecogResult> &accepted, std::vector<RecogResult> &rejected);
 void recognize(const std::string& configFilePath);
 bool fakeArgvByYaml(const std::string& yamlPath);
 
