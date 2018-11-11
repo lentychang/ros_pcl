@@ -9,7 +9,7 @@ void __test_computeResolution(int argc, char* argv[]) {
     pcl::PointCloud<PointType>::Ptr pnts (new pcl::PointCloud<PointType> ());
 
     if (pcl::io::loadPCDFile<PointType> (filename, *pnts) < 0) {
-        ROS_FATAL("Error loading model cloud.");
+        std::cerr << "[FATAL] Error loading model cloud" << std::endl;
     }
       
     //remove NaN
@@ -57,7 +57,7 @@ void __test_normalViewer(){
 	std::string filename = "/root/exchange/tempData/filtered/scene2_points_.pcd";
     pcl::PointCloud<PointType>::Ptr pnts (new pcl::PointCloud<PointType> ());
     if (pcl::io::loadPCDFile<PointType> (filename, *pnts) < 0) {
-        ROS_FATAL("Error loading model cloud.");
+        std::cerr  << "[FATAL] Error loading model cloud." << std::endl;
     }
 	//pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal> ());
 	pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal> ());
@@ -86,7 +86,7 @@ void __tool_computeResolution() {
 		}
 		
 		if (pcl::io::loadPCDFile<PointType> (filepath, *pnts) < 0) {
-			ROS_FATAL("Error loading model cloud.");
+			std::cerr << "Error loading model cloud." << std::endl;
 		}
 		//remove NaN
 		std::vector<int> indices_src;
@@ -119,7 +119,7 @@ void __tool_normalViewer(){
 		std::cin >> searchR;
 
 		if (pcl::io::loadPCDFile<PointType> (filename, *pnts) < 0) {
-			ROS_FATAL("Error loading model cloud.");
+			std::cerr << "Error loading model cloud." << std::endl;
 		}
 		pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal> ());
 		pcl::NormalEstimationOMP<PointType, pcl::Normal> norm_est;
