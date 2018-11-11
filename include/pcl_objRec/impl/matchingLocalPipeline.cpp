@@ -75,11 +75,11 @@ void filterResult_by_mask(std::vector<bool> const &mask, std::vector<int>& no_mo
     }
 }
 
-int main(int argc, char* argv[])
-{
-  std::vector<RecogResult> acc, rej;
-  recognize("/root/catkin_ws/src/ros_pcl/config/matchinLocalPipline_enableRes.yaml", acc, rej);
-}
+// int main(int argc, char* argv[])
+// {
+//   std::vector<RecogResult> acc, rej;
+//   recognize("/root/catkin_ws/src/ros_pcl/config/matchinLocalPipline_enableRes.yaml", acc, rej);
+// }
 
 bool fakeArgvByYaml(const std::string& yamlPath)
 {

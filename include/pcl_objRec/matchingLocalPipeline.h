@@ -169,7 +169,6 @@ void view_hv_result(const pcl::PointCloud<PointType>::Ptr& scene, std::vector<bo
                     std::vector<pcl::PointCloud<PointType>::ConstPtr>& all_registered_instances);
 
 void recognize(const std::string& configFilePath, std::vector<RecogResult> &accepted, std::vector<RecogResult> &rejected);
-void recognize(const std::string& configFilePath);
 bool fakeArgvByYaml(const std::string& yamlPath);
 
 #endif
