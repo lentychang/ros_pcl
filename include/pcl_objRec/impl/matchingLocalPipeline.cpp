@@ -905,7 +905,7 @@ void hypothesis_verification(const pcl::PointCloud<PointType>::Ptr& scene,
   GoHv.verify();
   GoHv.getMask(hypotheses_mask);  // i-element TRUE if hvModels[i] verifies hypotheses
 
-  for (int i = 0; i < hypotheses_mask.size(); i++)
+  for (unsigned int i = 0; i < hypotheses_mask.size(); i++)
   {
     if (hypotheses_mask[i])
     {
