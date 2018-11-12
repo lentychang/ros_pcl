@@ -195,7 +195,12 @@ void recognize(const std::string& configFilePath, std::vector<RecogResult> &acce
     std::cout << "No instance found !!" << std::endl;
   }
   assert(no_model_instances.size() == modelList_.size() && "len of #model_instance and modelList must be the same");
-  assert(hypothesesMask.size() == no_model_instances.size() && "len of mask and instances must be the same!!");
+  int sum = 0;
+  for (auto &n : no_model_instances){
+    sum += n;
+  }
+
+  assert(static_cast<int>(hypothesesMask.size()) == sum && "len of mask and instances must be the same!!");
   // std::vector<RecogResult> accepted, rejected;
 
   filterResult_by_mask(hypothesesMask, no_model_instances, all_final_tfMatrixList, accepted, rejected);
