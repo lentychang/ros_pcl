@@ -150,7 +150,7 @@ void viewSingleMatch(pcl::PointCloud<PointType>::Ptr& scene, pcl::PointCloud<Poi
                      std::vector<pcl::Correspondences>& clustered_corrs,
                      std::vector<pcl::PointCloud<PointType>::ConstPtr>& registered_instances);
 
-void matchAllModels(bool matchAllmodels, pcl::PointCloud<PointType>::Ptr& scene,
+void matchAllModels(pcl::PointCloud<PointType>::Ptr& scene,
                     pcl::PointCloud<pcl::Normal>::Ptr& scene_normals, pcl::PointCloud<PointType>::Ptr& scene_keypoints,
                     pcl::PointCloud<DescriptorType>::Ptr& scene_descriptors,
                     pcl::PointCloud<FPFHDescriptor>::Ptr& scene_fpfhDescriptors, std::vector<int>& no_model_instances,

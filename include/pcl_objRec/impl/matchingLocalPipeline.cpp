@@ -44,7 +44,6 @@
 // --cg_thresh 8 > log.txt
 
 
-
 void filterResult_by_mask(std::vector<bool> const &mask, std::vector<int>& no_modelnames, std::vector<Eigen::Matrix4f> &all_tf_mat,
                           std::vector<RecogResult> &accepted, std::vector<RecogResult> &rejected)
 {
@@ -68,8 +67,8 @@ void filterResult_by_mask(std::vector<bool> const &mask, std::vector<int>& no_mo
       // a_recog_res.modelName = expanded_namelist[i];
       rejected.push_back(a_recog_res);
     }
-    assert((accepted.size()+rejected.size())==mask.size());
   }
+  assert((accepted.size()+rejected.size())==mask.size());
   for (auto & a_instance : accepted){
       std::cout << a_instance.tf_mat << std::endl;
     }
@@ -172,7 +171,7 @@ void recognize(const std::string& configFilePath, std::vector<RecogResult> &acce
   // ##############################
   // ### Start Recognition, ICP ###
   // ##############################
-  matchAllModels(true, scene, scene_normals, scene_keypoints, scene_descriptors, scene_fpfhDescriptors,
+  matchAllModels(scene, scene_normals, scene_keypoints, scene_descriptors, scene_fpfhDescriptors,
                  no_model_instances, all_final_tfMatrixList, all_registered_instances);
 
   //__test_final_tranformation(scene, modelpcdList, no_model_instances, all_final_tfMatrixList);
@@ -740,7 +739,7 @@ void matchFpfh(const std::string& modelName, pcl::PointCloud<PointType>::Ptr& sc
                     registered_instances);
 }
 
-void matchAllModels(bool matchAllmodels, pcl::PointCloud<PointType>::Ptr& scene,
+void matchAllModels(pcl::PointCloud<PointType>::Ptr& scene,
                     pcl::PointCloud<pcl::Normal>::Ptr& scene_normals, pcl::PointCloud<PointType>::Ptr& scene_keypoints,
                     pcl::PointCloud<DescriptorType>::Ptr& scene_descriptors,
                     pcl::PointCloud<FPFHDescriptor>::Ptr& scene_fpfhDescriptors, std::vector<int>& no_model_instances,
