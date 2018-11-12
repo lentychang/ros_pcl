@@ -4,6 +4,10 @@ project(ros_pcl)
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
+set(CMAKE_CXX_FLAGS "-g -Wall -Wextra -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -Wextra -O0")
+set(CMAKE_CXX_FLAGS_RELEASE "-g -Wall -Wextra -O0")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -Wall -Wextra -O0")
 set(CATKIN_DEVEL_PREFIX /root/catkin_ws/devel)
 
 set(YAML_CPP_INCLUDE_DIR /usr/local/include)
@@ -26,8 +30,10 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_sensor_msgs
   geometry_msgs
   ros_pcl_msgs
+  tf2_eigen
+  thesis_visualization_msgs
 )
-
+#find_library()
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system thread)
 find_package(PCL 1.8 REQUIRED COMPONENTS common io search features keypoints kdtree octree visualization filters recognition sample_consensus surface registration)
@@ -126,7 +132,7 @@ find_package(PCL 1.8 REQUIRED COMPONENTS common io search features keypoints kdt
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ros_pcl
-  CATKIN_DEPENDS pcl_conversions pcl_ros roscpp sensor_msgs std_msgs visualization_msgs ros_pcl_msgs geometry_msgs
+  CATKIN_DEPENDS pcl_conversions pcl_ros roscpp sensor_msgs std_msgs visualization_msgs ros_pcl_msgs geometry_msgs tf2_eigen tf2_ros thesis_visualization_msgs
 #  DEPENDS system_lib
 )
 
@@ -174,11 +180,8 @@ target_link_libraries(preprocessSrvServer ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(detectorSrvServer src/detectorSrvServer.cpp include/pcl_objRec/impl/detectors.cpp
                                                      include/pcl_objRec/impl/utils.cpp)
-#add_dependencies(detectorSrvServer ros_pcl_generate_message_cpp)
 target_link_libraries(detectorSrvServer ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
-#add_executable(pub src/pub.cpp)
-#target_link_libraries(pub ${catkin_LIBRARIES})
 
 add_executable(descriptorSrvServer src/descriptorsSrvServer.cpp include/pcl_objRec/impl/utils.cpp
                                                            include/pcl_objRec/impl/descriptors.cpp)
@@ -198,8 +201,8 @@ target_link_libraries(transformListener  ${catkin_LIBRARIES} )
 add_executable(pcd_merge src/pcd_merge.cpp)
 target_link_libraries(pcd_merge ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
-add_executable(matchingLocalPipeline include/pcl_objRec/impl/matchingLocalPipeline.cpp)
-target_link_libraries(matchingLocalPipeline ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${YAML_CPP_LIBRARY})
+# add_executable(matchingLocalPipeline include/pcl_objRec/impl/matchingLocalPipeline.cpp)
+# target_link_libraries(matchingLocalPipeline ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${YAML_CPP_LIBRARY})
 
 # add_executable(computeResolution src/computeResolution.cpp include/pcl_objRec/impl/utils.cpp)
 # target_link_libraries(computeResolution ${catkin_LIBRARIES} ${PCL_LIBRARIES})
@@ -207,8 +210,8 @@ target_link_libraries(matchingLocalPipeline ${catkin_LIBRARIES} ${PCL_LIBRARIES}
 add_executable(utils_tools include/pcl_objRec/impl/utils_tools.cpp)
 target_link_libraries(utils_tools ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
-# add_executable(recogSrvSrver src/recogSrvSrver.cpp)
-# target_link_libraries(recogSrvSrver ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+add_executable(recogSrvSrver src/recogSrvSrver.cpp)
+target_link_libraries(recogSrvSrver ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${YAML_CPP_LIBRARY})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
