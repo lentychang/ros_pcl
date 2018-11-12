@@ -2,37 +2,17 @@
 #include <ros/ros.h>
 #include <ros_pcl_msgs/srv_recogSrv.h>
 #include <sensor_msgs/PointCloud2.h>
-//#include <pub_msgs/pubMsgType.h>             // [TODO] rename: pub_msgs,
+#include <thesis_visualization_msgs/objectLocalization.h>
+#include <std_msgs/Header.h>
 #include <geometry_msgs/TransformStamped.h>
-#include <ros_pcl_msgs/srv_getScenePcd.h>
-#include <ros_pcl_msgs/srv_preprocess.h>
-
-#include <boost/bind/bind.hpp>
-
-#include "../config/pointType.hpp"
-#include "std_msgs/String.h"
-#include <boost/bind/bind.hpp>
-#include <boost/foreach.hpp>
-#include <boost/thread/thread.hpp>
-#include <geometry_msgs/TransformStamped.h>
-#include <iostream>
-#include <pcl/common/io.h>
-#include <pcl/filters/filter.h>
-#include <pcl/filters/passthrough.h>
-#include <pcl/io/io.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-#include <pcl_ros/point_cloud.h>
-#include <ros/ros.h>
-#include <ros_pcl_msgs/srv_getScenePcd.h>
-#include <sensor_msgs/PointCloud2.h>
-#include <tf2/transform_datatypes.h>
-#include <tf2_ros/transform_listener.h>
-
-#include <math.h>
-#include <stdlib.h>
+#include <pcl_objRec/impl/matchingLocalPipeline.cpp>
+#include <tf2_eigen/tf2_eigen.h>
 #include <string>
 #include <vector>
+
+
+// [TODO] must be compiled without optimization with -DMAKE_BUILD_TYPE=Debug which is specified with option -O0 in CMakeList.txt
+//        Otherwise, __pubMsg cannot find register?
 
 // define a class, including a constructor, member variables and member
 // functions
@@ -52,8 +32,11 @@ class RecogSrv {
     ros::Subscriber minimal_subscriber_; // these will be set up within the class
                                          // constructor, hiding these ugly details
     ros::ServiceServer __service;
-    ros::Publisher __publisher;
-    geometry_msgs::TransformStamped __transform;
+    ros::Publisher __publisher_accepted;
+    ros::Publisher __publisher_rejected;
+    std::vector<RecogResult> __accepted, __rejected;
+    thesis_visualization_msgs::objectLocalization __pubMsg_accepted;
+    thesis_visualization_msgs::objectLocalization __pubMsg_rejected;
 
     double val_from_subscriber_; // example member variable: better than using
                                  // globals; convenient way to pass data from a
@@ -77,10 +60,7 @@ RecogSrv::RecogSrv(ros::NodeHandle* nodehandle) : nh_(*nodehandle), __rate(5) { 
     initializeServices();
 
     // initialize variables here, as needed
-
     // can also do tests/waits to make sure all required services, topics, etc
-    // are
-    // alive
 }
 
 // member helper function to set up services:
@@ -88,39 +68,71 @@ RecogSrv::RecogSrv(ros::NodeHandle* nodehandle) : nh_(*nodehandle), __rate(5) { 
 // "main()"
 void RecogSrv::initializeServices() {
     ROS_INFO("Initializing Services");
-    __service = nh_.advertiseService("exampleMinimalService", &RecogSrv::serviceCallback, this);
+    __service = nh_.advertiseService("/RecognizeSrv", &RecogSrv::serviceCallback, this);
     // add more services here, as needed
 }
 
 // member helper function to set up publishers;
 void RecogSrv::initializePublishers() {
     ROS_INFO("Initializing Publishers");
-    __publisher = nh_.advertise<geometry_msgs::TransformStamped>("exampleMinimalPubTopic", 1, true); // [TODO]
-    // add more publishers, as needed
-    // note: COULD make __publisher a public member function, if want to use it
-    // within "main()"
+    __publisher_accepted = nh_.advertise<thesis_visualization_msgs::objectLocalization>("/acceptedModel", 1, true); // [TODO]
+    __publisher_rejected = nh_.advertise<thesis_visualization_msgs::objectLocalization>("/rejectedModel", 1, true); // [TODO]
 }
 
 // member function implementation for a service callback function
 bool RecogSrv::serviceCallback(ros_pcl_msgs::srv_recogSrv::Request& request, ros_pcl_msgs::srv_recogSrv::Response& response) {
     ROS_INFO("service callback activated");
     __preparePubMsg();
+    pub();
     response.success = true;
 
+    ROS_INFO("Recog Service finished");
     return true;
 }
 
 void RecogSrv::pub() {
     for (int i = 0; i < 5; ++i) {
-        __publisher.publish(__transform);
+        __publisher_accepted.publish(__pubMsg_accepted);
+        __publisher_rejected.publish(__pubMsg_rejected);
         ros::spinOnce();
         __rate.sleep();
     }
+    ROS_INFO("publish finished");
 }
 
 void RecogSrv::__preparePubMsg() {
     // here call the algorithm function
-    int x;
+    std::string configFile = "/root/catkin_ws/src/ros_pcl/config/matchinLocalPipline_enableRes.yaml";    
+    recognize(configFile, __accepted, __rejected);
+    // tranform matrix4f to affine3f
+    for (auto &instance : __accepted){
+        Eigen::Transform<float, 3, Eigen::Affine> affine(instance.tf_mat);
+        __pubMsg_accepted.modelList.push_back(instance.modelName);
+
+        std_msgs::Header header;
+        header.stamp = ros::Time::now();
+        header.frame_id = "/kinect2_depth_optical_frame";
+        __pubMsg_accepted.headers.push_back(header);
+
+        Eigen::Affine3d affine_3d = affine.cast<double>();
+        geometry_msgs::Pose transformPose = Eigen::toMsg(affine_3d);
+        __pubMsg_accepted.pose.push_back(transformPose);
+    }
+    for (auto &instance : __rejected){
+        Eigen::Transform<float, 3, Eigen::Affine> affine(instance.tf_mat);
+        __pubMsg_rejected.modelList.push_back(instance.modelName);
+
+        std_msgs::Header header;
+        header.stamp = ros::Time::now();
+        header.frame_id = "/kinect2_depth_optical_frame";
+        __pubMsg_rejected.headers.push_back(header);
+
+        //check translation from affine
+        Eigen::Affine3d affine_3d = affine.cast<double>();
+        geometry_msgs::Pose transformPose = Eigen::toMsg(affine_3d);
+
+        __pubMsg_rejected.pose.push_back(transformPose);
+    }
 }
 
 int main(int argc, char** argv) {
