@@ -3,76 +3,51 @@
     // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
-        {   "label": "build",
+        {
+            "label": "compile",
             "type": "shell",
             "command": "g++",
             "args": [
-                "-g", "-std=c++11", "${file}", "-o", "${fileBasenameNoExtension}",
-                "-I/usr/local/include", "-L/usr/local/lib", "-lyaml-cpp"
+                "-g",
+                "-std=c++11",
+                "${file}",
+                "-o",
+                "${fileBasenameNoExtension}",
+                "-I/usr/local/include",
+                "-L/usr/local/lib",
+                "-lyaml-cpp"
             ],
             "group": {
                 "kind": "build",
                 "isDefault": true
             }
         },
-        {   "label": "catkinMake",
+        {
+            "label": "build_single",
             "type": "shell",
-            "command": "cd ~/catkin_ws && source devel/setup.bash && catkin_make",
-
+            "command": "cd ~/catkin_ws && catkin_make ${fileBasenameNoExtension} -DCMAKE_BUILD_TYPE=Debug",
             "group": {
                 "kind": "build",
                 "isDefault": true
             }
         },
-        {   "label": "CMake_pcl",
+        {
+            "label": "build all",
+            "type": "shell",
+            "command": "cd ~/catkin_ws && source devel/setup.bash && catkin_make -DCMAKE_BUILD_TYPE=Debug",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "CMake_pcl",
             "type": "shell",
             "command": "cd ~/catkin_ws/src/ros_pcl/src/pcl_object_recognition/build && cmake ..",
             "group": {
                 "kind": "build",
                 "isDefault": true
             }
-        },
-        {   "label": "catkinMake_single",
-            "type": "shell",
-            "command": "cd ~/catkin_ws && catkin_make ${fileBasenameNoExtension} -DCMAKE_BUILD_TYPE=RelWithDebInfo",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {   "label": "make_scenen_Prepare",
-            "type": "shell",
-            "command": "cd ~/catkin_ws/src/ros_pcl/src/pcl_object_recognition/build && make scene_prepare -j3",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {   "label": "make_all",
-            "type": "shell",
-            "command": "cd ~/catkin_ws/src/ros_pcl/src/pcl_object_recognition/build && make -j3",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {   "label": "make_test",
-            "type": "shell",
-            "command": "cd ~/catkin_ws/src/ros_pcl/src/pcl_object_recognition/build && make test -j3",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
-        },
-        {   "label": "make_model_prepare",
-            "type": "shell",
-            "command": "cd ~/catkin_ws/src/ros_pcl/src/pcl_object_recognition/build && make model_prepare -j3",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
         }
-
-
     ]
 }
