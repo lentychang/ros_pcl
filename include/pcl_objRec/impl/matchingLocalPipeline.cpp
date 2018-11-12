@@ -564,6 +564,7 @@ void matchShot(const std::string& modelName, pcl::PointCloud<PointType>::Ptr& sc
   {
     for (size_t i = 0; i < rototranslations.size(); ++i)
     {
+      registered_instances.insert(registered_instances.end(), instances.begin(), instances.end());
       final_tfMatrixList.push_back(rototranslations[i]);
     }
   }
