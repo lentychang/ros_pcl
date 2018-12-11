@@ -1,7 +1,12 @@
 <?xml version="1.0"?>
 <launch>
-    <node name="preprocessSrvServer" pkg="ros_pcl" type="preprocessSrvServer" output="screen"/>
+    <!-- useless service -->
+    <!-- <node name="preprocessSrvServer" pkg="ros_pcl" type="preprocessSrvServer" output="screen"/>
     <node name="detectorSrvServer" pkg="ros_pcl" type="detectorSrvServer" output="screen"/>
     <node name="descriptorSrvServer" pkg="ros_pcl" type="descriptorSrvServer" output="screen"/>
-    <node name="matchingSrvServer" pkg="ros_pcl" type="matchingSrvServer" output="screen"/>
+    <node name="matchingSrvServer" pkg="ros_pcl" type="matchingSrvServer" output="screen"/> -->
+
+    <!-- service in use -->
+    <node name="getScenePcdSrv" pkg="ros_pcl" type="getScenePcdSrv" output="screen"/>
+    <node name="recogSrv" pkg="ros_pcl" type="recogSrv" output="screen"/>
 </launch>
