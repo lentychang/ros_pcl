@@ -157,6 +157,7 @@ void PcdGrabber::appendNewPointCloud() { *cloudPoints = (*__cloudPoints) + (*clo
 
 void PcdGrabber::savePCD(const char fileName[]) { pcl::io::savePCDFileASCII(fileName, *cloudPoints); }
 
+// Testing tf2 listener
 void PcdGrabber::getTf2(ros_pcl_msgs::srv_getScenePcd::Request& req) {
     std::cout << "In getTf2" << std::endl;
     while (nh_sub.ok()) {

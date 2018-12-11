@@ -163,8 +163,8 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(getScenePcdSrvServer src/getScenePcdSrvServer.cpp)
-target_link_libraries(getScenePcdSrvServer ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+add_executable(getScenePcdSrv src/getScenePcdSrv.cpp)
+target_link_libraries(getScenePcdSrv ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 add_executable(preprocessSrvServer src/preprocessSrvServer.cpp include/pcl_objRec/impl/model_prepare.cpp 
                                                                include/pcl_objRec/impl/scene_prepare.cpp   
@@ -210,8 +210,8 @@ target_link_libraries(pcd_merge ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 add_executable(utils_tools include/pcl_objRec/impl/utils_tools.cpp)
 target_link_libraries(utils_tools ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
-add_executable(recogSrvSrver src/recogSrvSrver.cpp)
-target_link_libraries(recogSrvSrver ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${YAML_CPP_LIBRARY})
+add_executable(recogSrv src/recogSrv.cpp)
+target_link_libraries(recogSrv ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${YAML_CPP_LIBRARY})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
